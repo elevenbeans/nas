@@ -6,7 +6,11 @@ const BASE = "/Volumes/NAS-Data";
 
 export async function GET(req: NextRequest) {
   const dir = req.nextUrl.searchParams.get("path") || "/";
-  const fullPath = path.join(BASE, dir);
+  const fullPath = path.resolve(BASE, dir);
+
+  if (!fullPath.startsWith(path.resolve(BASE) + path.sep)) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
 
   try {
     const entries = readdirSync(fullPath);
