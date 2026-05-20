@@ -29,7 +29,8 @@ export async function GET(req: NextRequest) {
           return null;
         }
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter((item: any) => !item.name.startsWith(".") && item.name !== "Docker");
 
     return NextResponse.json({ path: dir, items });
   } catch {
