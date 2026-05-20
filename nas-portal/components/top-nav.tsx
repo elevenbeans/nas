@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LayoutDashboard, FolderOpen, Film, Image, Settings, X } from "lucide-react";
 
 const navItems = [
@@ -16,6 +16,18 @@ const navItems = [
 export default function TopNav() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = drawerOpen ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDrawerOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [drawerOpen]);
 
   return (
     <>
@@ -52,7 +64,7 @@ export default function TopNav() {
               E
             </div>
             <button
-              className="flex sm:hidden flex-col gap-1.5 p-1.5 bg-none border-none cursor-pointer"
+              className="flex sm:hidden flex-col gap-1.5 p-1.5 bg-transparent border-0 cursor-pointer"
               onClick={() => setDrawerOpen(true)}
               aria-label="Open menu"
             >
@@ -71,13 +83,10 @@ export default function TopNav() {
         />
       )}
 
-      <div
-        className={`fixed top-0 right-0 w-[260px] h-full bg-white z-[99] p-6 shadow-[-2px_0_20px_rgba(0,0,0,0.08)] transition-transform duration-300 ${
-          drawerOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+      {drawerOpen && (
+      <div className="fixed top-0 right-0 w-[260px] h-full bg-white z-[99] p-6 shadow-[-2px_0_20px_rgba(0,0,0,0.08)]">
         <button
-          className="absolute top-5 right-5 text-apple-muted text-2xl bg-none border-none cursor-pointer"
+          className="absolute top-5 right-5 text-apple-muted text-2xl bg-transparent border-0 cursor-pointer"
           onClick={() => setDrawerOpen(false)}
           aria-label="Close menu"
         >
@@ -106,6 +115,7 @@ export default function TopNav() {
           );
         })}
       </div>
+      )}
     </>
   );
 }
