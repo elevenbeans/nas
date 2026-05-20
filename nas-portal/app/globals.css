@@ -8,6 +8,13 @@
   --color-apple-text: #1d1d1f;
   --color-apple-muted: #86868b;
   --color-clean-blue: #3b82f6;
+  --radius-apple: 18px;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
 }
 
 body {
