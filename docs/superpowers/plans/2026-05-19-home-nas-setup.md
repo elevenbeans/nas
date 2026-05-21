@@ -2,9 +2,9 @@
 
 **目标：** 用 Mac Mini (macOS) + UGREEN 双盘位硬盘盒 + 1块 WD Red 3TB（第二盘位预留）搭建家庭 NAS，管理照片/文件/视频，所有家庭成员设备可访问。
 
-**架构：** Mac Mini 作为 NAS 主机，WD Red 3TB 格式化为 APFS 单卷。SMB 文件共享（Homebrew samba）给局域网所有设备，极米投影仪用 Kodi 通过 SMB 播放视频，不跑 Jellyfin/Docker。自定义 Next.js 网页（NAS Portal）作为统一管理入口。
+**架构：** Mac Mini 作为 NAS 主机，WD Red 3TB 格式化为 APFS 单卷。SMB 文件共享（macOS 自带 smbd）给局域网所有设备，极米投影仪用 Kodi 通过 SMB 播放视频，不跑 Jellyfin/Docker。自定义 Next.js 网页（NAS Portal）作为统一管理入口。
 
-**技术栈：** macOS (主机), Homebrew samba (SMB 文件共享), Next.js 15 (NAS Portal), Kodi (投影仪播放)
+**技术栈：** macOS (主机, smbd), Next.js 15 (NAS Portal), Kodi (投影仪播放)
 
 ---
 
@@ -32,24 +32,15 @@
 
 ### 任务 2：SMB 文件共享
 
-- [x] **方案：** Homebrew samba（不使用 macOS 自带的系统共享）
-  - 原因：macOS Tahoe (Sequoia) Finder SMB 存在系统 bug，`smbutil view` 终端正常但 Finder `smb://` 连接失败
-
-- [x] **配置文件：** `/opt/homebrew/etc/samba/smb.conf`
-- [x] **SMB 二进制：** `/opt/homebrew/sbin/samba-dot-org-smbd`
+- [x] **方案：** macOS 自带 smbd（由 launchd 管理，service: system/com.apple.smbd）
+- [x] **配置文件参考：** `nas-config/smb.conf`
 - [x] **端口：** 445
-- [x] **访问方式：**
-  - 访客：读写访问（免密码）
-  - 用户 `elevenbeans` 密码：`nas123`
-
-- [x] **开机自启：** launchd（`com.nas.samba.plist`）
+- [x] **访问方式：** 用户认证（本地账户 `eva` 等），禁用访客访问
+- [x] **开机自启：** launchd（system/com.apple.smbd）
 - [x] **macOS Tahoe 临时方案（如果 Finder 连不上）：**
   ```bash
   # 终端确认 SMB 是否正常
-  smbutil view //guest@192.168.1.46/NAS-Data
-
-  # 或显式指定凭据连接
-  smbutil view //elevenbeans:nas123@192.168.1.46/NAS-Data
+  smbutil view <REDACTED_IP>/NAS-Data
   ```
 
 ---
@@ -57,8 +48,8 @@
 ### 任务 3：NAS Portal（自定义网页管理界面）
 
 - [x] **目录：** `~/code/nas/nas-portal/`
-- [x] **访问地址：** `http://192.168.1.46/`（端口 80 → socat → 3000）
-- [x] **开发地址：** `http://192.168.1.46:3001`（`npm run dev`）
+- [x] **访问地址：** `http://<REDACTED_IP>/`（端口 80 → socat → 3000）
+- [x] **开发地址：** `http://<REDACTED_IP>:3001`（`npm run dev`）
 - [x] **部署方式：**
   - LaunchAgent `com.nas.portal`（用户态，Next.js 生产运行在端口 3000）
   - LaunchDaemon `com.nas.socat`（root，端口 80 → 3000）
@@ -80,15 +71,15 @@
 ### 任务 4：各设备配置
 
 - [ ] **MacBook Pro / Air**
-  - Finder → Cmd+K → `smb://192.168.1.46/NAS-Data`
+  - Finder → Cmd+K → `smb://<REDACTED_IP>/NAS-Data`
   - 自动挂载（系统设置 → 通用 → 登录项）
 
 - [ ] **iPhone（2 台）**
   - 照片备份：待定（PhotoSync / iCloudPD）
-  - 浏览器访问 NAS Portal：`http://192.168.1.46/`
+  - 浏览器访问 NAS Portal：`http://<REDACTED_IP>/`
 
 - [x] **极米投影仪（XGIMI RS10）**
-  - 方案：安装 **Kodi**，添加 SMB 源（`smb://192.168.1.46/Videos`）
+  - 方案：安装 **Kodi**，添加 SMB 源（`smb://<REDACTED_IP>/Videos`）
   - 不装 Jellyfin/Docker — Kodi 直接读取 NAS 视频文件
 
 ---
@@ -118,11 +109,11 @@
 | 决策 | 选择 | 原因 |
 |------|------|------|
 | 媒体服务器 | 不用 Jellyfin | Kodi 直接挂 SMB 更简单，无服务器依赖 |
-| SMB 方案 | Homebrew samba | macOS 自带 SMB 在 Tahoe 有 bug |
+| SMB 方案 | macOS 自带 smbd (com.apple.smbd) | launchd 管理，崩溃自动重启 |
 | 字体方案 | 系统字体栈 | 零外部依赖，没 Google Fonts 加载延迟，符合中文 Apple 风格 |
 | 端口转发 | socat | 避免 pf 防火墙配置和 TCC 权限问题 |
 | 开发端口 | 3000(生产) / 3001(开发) | `npm run sync` 一键构建 + 重启 |
 
 ## 已知问题
 
-- **macOS Tahoe Finder SMB bug**：Finder 连接 `smb://192.168.1.46/` 可能失败，终端 `smbutil view` 正常。workaround：用 Kodi/MacBook 通过终端挂载，或显式输入凭据。
+- **macOS Tahoe Finder SMB bug**：Finder 连接 `smb://<REDACTED_IP>/` 可能失败，终端 `smbutil view` 正常。workaround：用 Kodi/MacBook 通过终端挂载，或显式输入凭据。

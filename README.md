@@ -25,8 +25,8 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 │         ▼                                                   │
 │  ┌────────────────┐    ┌──────────────────────┐             │
 │  │  SMB (port 445)│────│  WD Red 3TB (APFS)   │             │
-│  │  Homebrew      │    │  /Volumes/NAS-Data   │             │
-│  │  samba         │    │  ├── Photos/         │             │
+│  │  macOS SMB     │    │  /Volumes/NAS-Data   │             │
+│  │  (system smbd) │    │  ├── Photos/         │             │
 │  └────────────────┘    │  ├── Videos/         │             │
 │                        │  ├── Downloads/      │             │
 │                        │  └── Backups/        │             │
@@ -59,7 +59,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 
 ## Key Architecture Decisions
 
-- **SMB:** Homebrew samba (not macOS system sharing — avoids Tahoe Finder bug)
+- **SMB:** macOS system smbd (com.apple.smbd) managed by launchd
 - **Media:** Kodi on projector via SMB direct — no Jellyfin/Docker dependency
 - **Port 80:** socat (root LaunchDaemon) → Next.js (user LaunchAgent) — avoids pf/TCC issues
 - **Font:** system font stack — zero external requests, matches Apple China feel

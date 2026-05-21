@@ -1,0 +1,47 @@
+[global]
+    workgroup = WORKGROUP
+    server string = NAS
+    server role = standalone server
+    netbios name = NAS
+    log file = /opt/homebrew/var/log/samba/log.%m
+    max log size = 50
+    security = user
+    map to guest = Bad User
+    guest account = nobody
+    load printers = no
+    printing = bsd
+    disable spoolss = yes
+    server min protocol = SMB2
+    server max protocol = SMB3
+    client min protocol = SMB2
+    client max protocol = SMB3
+    encrypt passwords = yes
+    ntlm auth = yes
+    bind interfaces only = no
+    access based share enum = yes
+
+[NAS-Data]
+    path = /Volumes/NAS-Data
+    browseable = yes
+    read only = yes
+    # Reference configuration only. Production setup uses
+    # macOS "File Sharing" + launchd-managed com.apple.smbd.
+    # Ensure guest access is disabled and grant per-user ACLs
+    # on /Volumes/NAS-Data instead of relying on guest_ok.
+    guest ok = no
+    valid users = elevenbeans
+    write list = elevenbeans
+
+[Pictures]
+    path = /Users/elevenbeans/Pictures
+    browseable = yes
+    read only = no
+    guest ok = no
+    valid users = elevenbeans
+
+[Movies]
+    path = /Users/elevenbeans/Movies
+    browseable = yes
+    read only = no
+    guest ok = no
+    valid users = elevenbeans

@@ -212,7 +212,7 @@ export default function TopNav() {
             ))}
           </div>
           <div className="ml-auto flex items-center gap-4 shrink-0">
-            <span className="hidden sm:block text-xs text-apple-muted font-medium">192.168.1.46</span>
+            <span className="hidden sm:block text-xs text-apple-muted font-medium"><REDACTED_IP></span>
             <div className="w-7 h-7 bg-apple-blue rounded-full flex items-center justify-center text-white text-[11px] font-semibold">E</div>
             <button className="flex sm:hidden flex-col gap-1.5 p-1.5 bg-none border-none cursor-pointer" onClick={() => setDrawerOpen(true)} aria-label="打开菜单">
               <span className="block w-5 h-[2px] bg-apple-text rounded" />

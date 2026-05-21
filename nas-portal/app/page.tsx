@@ -145,7 +145,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <div>
               <div className="font-heading text-xl font-bold tracking-tight">
-                {status?.network.ip ?? "192.168.1.46"}
+                {status?.network.ip ?? "<REDACTED_IP>"}
               </div>
               <div className="text-[13px] text-green-600">已连接</div>
             </div>

@@ -57,7 +57,7 @@ export default function TopNav() {
           </div>
 
           <div className="ml-auto flex items-center gap-4 shrink-0">
-            <span className="hidden sm:block text-xs text-apple-muted font-medium">192.168.1.46</span>
+            <span className="hidden sm:block text-xs text-apple-muted font-medium"><REDACTED_IP></span>
             <div className="w-7 h-7 bg-clean-blue rounded-full flex items-center justify-center text-white text-[11px] font-heading font-semibold">
               E
             </div>
