@@ -3,23 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
+    "sync": "launchctl bootout gui/$(id -u)/com.nas.portal 2>/dev/null; rm -rf .next && next build && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.nas.portal.plist 2>/dev/null || launchctl load ~/Library/LaunchAgents/com.nas.portal.plist",
     "lint": "next lint"
   },
   "dependencies": {
+    "lucide-react": "^1.16.0",
     "next": "^15.2.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sharp": "^0.34.5"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 77"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.7.0",
-    "tailwindcss": "^4.0.0",
     "postcss": "^8.4.0",
-    "@tailwindcss/postcss": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
   }
 }

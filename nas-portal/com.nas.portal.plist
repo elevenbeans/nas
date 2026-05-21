@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.nas.portal</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/elevenbeans/.nvm/versions/node/v22.22.3/bin/node</string>
+        <string>/Users/elevenbeans/code/nas/nas-portal/node_modules/.bin/next</string>
+        <string>start</string>
+        <string>-p</string>
+        <string>3000</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/elevenbeans/code/nas/nas-portal</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardErrorPath</key>
+    <string>/tmp/nas.portal.stderr</string>
+    <key>StandardOutPath</key>
+    <string>/tmp/nas.portal.stdout</string>
+</dict>
+</plist>

@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, FolderOpen, Film, Image, Settings, X } from "lucide-react";
+import { LayoutDashboard, FolderOpen, Image, Settings, X } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Overview", icon: LayoutDashboard },
-  { href: "/files", label: "Files", icon: FolderOpen },
-  { href: "/media", label: "Media", icon: Film },
-  { href: "/photos", label: "Photos", icon: Image },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", label: "概览", icon: LayoutDashboard },
+  { href: "/files", label: "文件", icon: FolderOpen },
+  { href: "/photos", label: "照片", icon: Image },
+  { href: "/settings", label: "设置", icon: Settings },
 ];
 
 export default function TopNav() {
@@ -32,10 +31,9 @@ export default function TopNav() {
   return (
     <>
       <nav className="sticky top-0 z-50 flex items-center justify-center h-14 bg-white border-b border-[#f0f0f2] px-4 sm:px-8">
-        <div className="flex items-center w-full max-w-[720px]">
+        <div className="flex items-center w-full max-w-[920px]">
           <Link href="/" className="flex items-center gap-2.5 mr-8 shrink-0">
-            <div className="w-[26px] h-[26px] bg-clean-blue rounded-[6px]" />
-            <span className="font-heading text-[17px] font-bold tracking-tight">NAS</span>
+            <span className="font-heading text-[17px] font-bold tracking-tight">🏠 NAS </span>
           </Link>
 
           <div className="hidden sm:flex gap-1">

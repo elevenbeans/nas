@@ -1,0 +1,13 @@
+{"type":"server-started","port":64209,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:64209","screen_dir":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content","state_dir":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/state"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/clean-demo.html"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/clean-demo-v2.html"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/apple-style.html"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/apple-style-v2.html"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-demo.html"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-v2.html"}
+{"type":"screen-updated","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-v2.html"}
+{"type":"screen-updated","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-v2.html"}
+{"type":"screen-updated","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-v2.html"}
+{"type":"screen-updated","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-v2.html"}
+{"type":"screen-added","file":"/Users/elevenbeans/code/nas/.superpowers/brainstorm/36528-1779298354/content/topnav-v3.html"}
+{"type":"server-stopped","reason":"idle timeout"}

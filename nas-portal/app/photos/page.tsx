@@ -5,11 +5,9 @@ import { useEffect, useState } from "react";
 type Photo = { name: string; mtime: string; size: number };
 type Group = { date: string; photos: Photo[] };
 
-const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
 function formatDate(iso: string) {
   const d = new Date(iso);
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
 function groupByDate(photos: Photo[]): Group[] {
@@ -38,14 +36,14 @@ export default function PhotosPage() {
 
   return (
     <div className="max-w-[720px] mx-auto px-4 sm:px-6 pt-10 pb-20">
-      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">Photos</h1>
-      <p className="text-[15px] text-apple-muted mb-8">Photo timeline</p>
+      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">照片</h1>
+      <p className="text-[15px] text-apple-muted mb-8">照片时间线</p>
 
       {loading ? (
-        <div className="text-sm text-apple-muted text-center py-10">Loading…</div>
+        <div className="text-sm text-apple-muted text-center py-10">加载中…</div>
       ) : groups.length === 0 ? (
         <div className="bg-white rounded-[20px] p-10 text-center text-apple-muted text-sm">
-          No photos yet. Add them to NAS‑Data/Photos/
+          暂无照片。请将照片放入 NAS‑Data/Photos/
         </div>
       ) : (
         groups.map((g) => (
@@ -62,7 +60,7 @@ export default function PhotosPage() {
                   className="block aspect-square rounded-xl overflow-hidden bg-[#e8e8ed] hover:opacity-80 transition-opacity"
                 >
                   <img
-                    src={`/api/photos/${encodeURIComponent(p.name)}`}
+                    src={`/api/photos/${encodeURIComponent(p.name)}?w=400`}
                     alt={p.name}
                     className="w-full h-full object-cover"
                     loading="lazy"

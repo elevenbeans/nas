@@ -23,18 +23,6 @@ export async function GET() {
       smb = false;
     }
 
-    // Jellyfin service check
-    let jellyfin = false;
-    try {
-      const jfOut = execSync(
-        `curl -sf http://localhost:8096/health > /dev/null 2>&1 && echo "up"`,
-        { encoding: "utf-8", timeout: 3000 }
-      );
-      jellyfin = jfOut.trim() === "up";
-    } catch {
-      jellyfin = false;
-    }
-
     // Network info
     let ip = "192.168.1.46";
     let iface = "en0";
@@ -48,7 +36,7 @@ export async function GET() {
 
     return NextResponse.json({
       storage: { used, total, percent },
-      services: { smb, jellyfin },
+      services: { smb },
       network: { ip, hostname: "Mac Mini", interface: iface },
     });
   } catch (err) {
