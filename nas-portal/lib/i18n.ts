@@ -71,7 +71,7 @@ export const locales: Record<Locale, {
       subtitle: "照片时间线",
       loading: "加载中…",
       empty: "暂无照片。请将照片放入 NAS‑Data/Photos/",
-      dateFmt: "{y}年{m}月{d}日",
+      dateFmt: "{y}年{m}月",
     },
     settings: {
       subtitle: "系统设置",
@@ -126,7 +126,7 @@ export const locales: Record<Locale, {
       ],
       tableSections: [
         {
-          title: "何时使用 NAS？听听管理员的建议",
+          title: "要不要存 NAS？听听管理员的建议",
           headers: ["很重要？", "可共享？", "存储方案", "说明"],
           rows: [
             ["✅", "✅", "NAS + Local", "内网共享，Local + NAS 双备份"],
@@ -162,7 +162,7 @@ export const locales: Record<Locale, {
       subtitle: "Photo Timeline",
       loading: "Loading…",
       empty: "No photos yet. Add photos to NAS‑Data/Photos/",
-      dateFmt: "{m}/{d}/{y}",
+      dateFmt: "{m}/{y}",
     },
     settings: {
       subtitle: "System Settings",
@@ -219,7 +219,7 @@ export const locales: Record<Locale, {
       ],
       tableSections: [
         {
-          title: "When to Use a NAS? Advice from the Admin",
+          title: "Store in NAS or not? Advice from the Admin",
           headers: ["Important?", "Sharable?", "Storage", "Description"],
           rows: [
             ["✅", "✅", "NAS + Local", "LAN sharing, Local + NAS dual backup"],

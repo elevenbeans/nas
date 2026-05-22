@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/language-toggle";
 import { locales } from "@/lib/i18n";
 
-type Photo = { name: string; mtime: string; size: number };
+type Photo = { name: string; capturedAt: string; size: number };
 type Group = { date: string; photos: Photo[] };
 
 function formatDate(iso: string, fmt: string) {
@@ -18,7 +18,7 @@ function formatDate(iso: string, fmt: string) {
 function groupByDate(photos: Photo[]): Group[] {
   const map = new Map<string, Photo[]>();
   for (const p of photos) {
-    const d = p.mtime.slice(0, 10);
+    const d = p.capturedAt.slice(0, 7);
     if (!map.has(d)) map.set(d, []);
     map.get(d)!.push(p);
   }
