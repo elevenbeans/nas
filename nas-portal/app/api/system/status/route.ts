@@ -24,7 +24,7 @@ export async function GET() {
     }
 
     // Network info
-    let ip = "<REDACTED_IP>";
+    let ip = "192.168.1.46";
     let iface = "en0";
     try {
       const ifconfig = execSync(

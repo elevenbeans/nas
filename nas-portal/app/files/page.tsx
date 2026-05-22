@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/language-toggle";
+import { locales } from "@/lib/i18n";
 
 type FileEntry = {
   name: string;
@@ -10,6 +12,8 @@ type FileEntry = {
 };
 
 export default function FilesPage() {
+  const { locale } = useLanguage();
+  const t = locales[locale];
   const [dir, setDir] = useState("/");
   const [items, setItems] = useState<FileEntry[]>([]);
   const [error, setError] = useState("");
@@ -21,8 +25,8 @@ export default function FilesPage() {
         if (data.error) setError(data.error);
         else setItems(data.items);
       })
-      .catch(() => setError("Failed to load files"));
-  }, [dir]);
+      .catch(() => setError(t.files.loadError));
+  }, [dir, t.files.loadError]);
 
   const goInto = (name: string) => {
     setDir((prev) => (prev === "/" ? `/${name}` : `${prev}/${name}`));
@@ -40,7 +44,7 @@ export default function FilesPage() {
 
   return (
     <div className="max-w-[720px] mx-auto px-4 sm:px-6 pt-10 pb-20">
-      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">文件</h1>
+      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">{t.nav.files}</h1>
       <p className="text-[15px] text-apple-muted mb-8">NAS‑Data{dir}</p>
 
       {dir !== "/" && (
@@ -48,7 +52,7 @@ export default function FilesPage() {
           onClick={goBack}
           className="text-sm text-clean-blue mb-4 bg-transparent border-0 cursor-pointer"
         >
-          ← 返回
+          {t.files.back}
         </button>
       )}
 

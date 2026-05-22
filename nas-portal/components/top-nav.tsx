@@ -3,18 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, FolderOpen, Image, Settings, X } from "lucide-react";
-
-const navItems = [
-  { href: "/", label: "概览", icon: LayoutDashboard },
-  { href: "/files", label: "文件", icon: FolderOpen },
-  { href: "/photos", label: "照片", icon: Image },
-  { href: "/settings", label: "设置", icon: Settings },
-];
+import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X } from "lucide-react";
+import LanguageToggle from "@/components/language-toggle";
+import { useLanguage } from "@/components/language-toggle";
+import { locales } from "@/lib/i18n";
 
 export default function TopNav() {
   const pathname = usePathname();
+  const { locale } = useLanguage();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const navItems = [
+    { href: "/", label: locales[locale].nav.overview, icon: LayoutDashboard },
+    { href: "/files", label: locales[locale].nav.files, icon: FolderOpen },
+    { href: "/photos", label: locales[locale].nav.photos, icon: Image },
+    { href: "/guide", label: locales[locale].nav.guide, icon: BookOpen },
+    { href: "/settings", label: locales[locale].nav.settings, icon: Settings },
+  ];
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
@@ -56,8 +61,8 @@ export default function TopNav() {
             })}
           </div>
 
-          <div className="ml-auto flex items-center gap-4 shrink-0">
-            <span className="hidden sm:block text-xs text-apple-muted font-medium"><REDACTED_IP></span>
+          <div className="ml-auto flex items-center gap-3 shrink-0">
+            <LanguageToggle />
             <div className="w-7 h-7 bg-clean-blue rounded-full flex items-center justify-center text-white text-[11px] font-heading font-semibold">
               E
             </div>

@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/language-toggle";
+import { locales } from "@/lib/i18n";
 
 type Photo = { name: string; mtime: string; size: number };
 type Group = { date: string; photos: Photo[] };
 
-function formatDate(iso: string) {
+function formatDate(iso: string, fmt: string) {
   const d = new Date(iso);
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  return fmt
+    .replace("{y}", String(d.getFullYear()))
+    .replace("{m}", String(d.getMonth() + 1))
+    .replace("{d}", String(d.getDate()));
 }
 
 function groupByDate(photos: Photo[]): Group[] {
@@ -21,6 +26,8 @@ function groupByDate(photos: Photo[]): Group[] {
 }
 
 export default function PhotosPage() {
+  const { locale } = useLanguage();
+  const t = locales[locale];
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,20 +43,20 @@ export default function PhotosPage() {
 
   return (
     <div className="max-w-[720px] mx-auto px-4 sm:px-6 pt-10 pb-20">
-      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">照片</h1>
-      <p className="text-[15px] text-apple-muted mb-8">照片时间线</p>
+      <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">{t.nav.photos}</h1>
+      <p className="text-[15px] text-apple-muted mb-8">{t.photos.subtitle}</p>
 
       {loading ? (
-        <div className="text-sm text-apple-muted text-center py-10">加载中…</div>
+        <div className="text-sm text-apple-muted text-center py-10">{t.photos.loading}</div>
       ) : groups.length === 0 ? (
         <div className="bg-white rounded-[20px] p-10 text-center text-apple-muted text-sm">
-          暂无照片。请将照片放入 NAS‑Data/Photos/
+          {t.photos.empty}
         </div>
       ) : (
         groups.map((g) => (
           <div key={g.date} className="mb-8">
             <div className="font-heading text-sm font-semibold text-apple-muted mb-3 px-0.5">
-              {formatDate(g.date)}
+              {formatDate(g.date, t.photos.dateFmt)}
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {g.photos.map((p) => (
