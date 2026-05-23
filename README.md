@@ -75,7 +75,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 
 ## NAS Portal
 
-Detailed component breakdown, API endpoints, page descriptions, and feature progress: [nas-portal-overview.md](./nas-portal-overview.md)
+Detailed component breakdown, API endpoints, page descriptions, and feature progress: [nas-portal-overview.md](./nas-portal/nas-portal-overview.md)
 
 
 ## Deploy
