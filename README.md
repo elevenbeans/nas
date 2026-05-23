@@ -5,41 +5,46 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Mac Mini (macOS)                         │
-│                                                             │
-│  ┌────────────────────────────────────────────┐             │
-│  │             NAS Portal (Next.js 15)        │             │
-│  │  ┌──────────┐ ┌──────────┐ ┌─────────────┐ │             │
-│  │  │ Dashboard│ │ Files    │ │ Photos      │ │  Port 3000  │
-│  │  │ /        │ │ /files   │ │ /photos     │ │             │
-│  │  └──────────┘ └──────────┘ └─────────────┘ │             │
-│  │  ┌──────────┐ ┌──────────────────────┐     │             │
-│  │  │ Settings │ │ API Routes           │     │             │
-│  │  │ /settings│ │ /api/system/status   │     │             │
-│  │  └──────────┘ │ /api/files           │     │             │
-│  │               │ /api/photos          │     │             │
-│  │               └──────────────────────┘     │             │
-│  └────────────────────────────────────────────┘             │
-│         │  socat (80 → 3000)                                │
-│         ▼                                                   │
-│  ┌────────────────┐    ┌──────────────────────┐             │
-│  │  SMB (port 445)│────│  WD Red 3TB (APFS)   │             │
-│  │  macOS SMB     │    │  /Volumes/NAS-Data   │             │
-│  │  (system smbd) │    │  ├── Photos/         │             │
-│  └────────────────┘    │  ├── Videos/         │             │
-│                        │  ├── Downloads/      │             │
-│                        │  └── Backups/        │             │
-│                        └──────────────────────┘             │
-│                                                             │
-│  ┌────────────────────────────────────────────┐             │
-│  │  Clients                                   │             │
-│  │  ┌──────────┐ ┌──────────┐ ┌─────────────┐ │             │
-│  │  │ MacBook  │ │ iPhone x2│ │ XGIMI RS10  │ │             │
-│  │  │ (SMB+Web)│ │ (SMB+Web)│ │ (Kodi → SMB)│ │             │
-│  │  └──────────┘ └──────────┘ └─────────────┘ │             │
-│  └────────────────────────────────────────────┘             │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                        Clients                            │
+│  ┌────────────────────────┐  ┌─────────────┐              │
+│  │ MacBook   iPhone x2    │  │ XGIMI RS10  │              │
+│  │      Web + SMB         │  │ Kodi → SMB  │              │
+│  └───────────┬────────────┘  └──────┬──────┘              │
+│              │                      │                     │
+│        ┌─────┴──────┬──────────────▶│                     │
+│        │            │               │                     │
+│        │──HTTPS     │          SMB──│                     │
+│        │      HTTP──│               │                     │
+└────────┼────────────┼───────────────┼─────────────────────┘
+  Public │            │               │
+         ▼            │ Internal      │ Internal
+┌────────────────┐    │               │
+│ Cloudflare     │    │               │
+│ Edge + Tunnel  │    │               │
+│ nas.elevenbeans│    │               │
+└───────┬────────┘    │               │
+        │ HTTPS       │               │
+        ▼             ▼               │
+┌─────────────────────────────────────┼──────────────────────┐
+│          Mac Mini (macOS)           │                      │
+│                                     ▼                      │
+│  ┌────────────────────────────┐  ┌────────────────────┐    │
+│  │  NAS Portal (Next.js 15)   │  │  SMB (port 445)    │    │
+│  │  ┌────┬────┬────────────┐  │  │  macOS smbd        │    │
+│  │  │Dash│Files│Photos(API)│  │  │                    │    │
+│  │  └────┴────┴────────────┘  │  └─────────┬──────────┘    │
+│  └────────────────────────────┘            │               │
+│                                            │               │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  WD Red 3TB (APFS)                                   │  │
+│  │  /Volumes/NAS-Data                                   │  │
+│  │  ├── Photos/   ← Portal reads via API                │  │
+│  │  ├── Videos/   ← SMB access                          │  │
+│  │  ├── Downloads/                                      │  │
+│  │  └── Backups/                                        │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ## Frontend Tech Stack
@@ -65,6 +70,12 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 - **Font:** system font stack — zero external requests, matches Apple China feel
 - **Photo serving:** custom API route with sharp — no Immich/PhotoPrism
 
+
+## NAS Portal
+
+Detailed component breakdown, API endpoints, page descriptions, and feature progress: [nas-portal-overview.md](./nas-portal-overview.md)
+
+
 ## Deploy
 
 | Mode | Command | Port |
@@ -73,10 +84,12 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 | Production (manual) | `npm run build && npm start` | 3000 |
 | Production (one-click) | `npm run sync` | 80 (socat) → 3000 |
 | Production (auto) | launchd KeepAlive on boot | 80 → 3000 |
+| Cloudflare Tunnel | launchd auto-start | nas.elevenbeans.me → Cloudflare → 3000 |
 
 ## Access
 
 ```
-http://192.168.1.x/               — NAS Portal web UI
+https://nas.elevenbeans.me/       — NAS Portal (外网, via Cloudflare Tunnel)
+http://192.168.1.x/               — NAS Portal (内网)
 smb://192.168.1.x/NAS-Data        — SMB mount
 ```

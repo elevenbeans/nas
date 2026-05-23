@@ -16,3 +16,16 @@
 
 - **Internationalization** — Chinese/English i18n with language toggle, full UI translation across dashboard, files, photos, settings, and navigation
 - **Guideline page** — `/guide` page with NAS usage guidelines
+
+## v2.1 (2026-05-22)
+
+- **Responsive photo carousel** — extracted to reusable component with breakpoint-based slide widths (80% / 50% / 33%) and responsive images via srcset/sizes
+- **HEIC/HEIF support** — macOS `sips` + `sharp` pipeline for reliable HEIC-to-JPEG conversion on all browsers
+- **EXIF capture date** — photo timeline now sorts and groups by original EXIF DateTimeOriginal instead of file mtime
+- **Monthly grouping** — photo timeline grouped by month instead of day
+- **Random carousel picks** — dashboard shows 6 random photos each visit, sorted by capture date
+- **First-slide padding fix** — capped padding to prevent image compression on wide viewports
+
+## v2.2 (2026-05-23)
+
+-  **Domain: Applied `elevenbeans.me` on Cloudflare and use subdomain `nas.elevenbeans.me`** to host the service via Cloudflare Tunnel
