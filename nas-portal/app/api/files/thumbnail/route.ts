@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       .resize(200, 200, { fit: "cover", position: "centre" })
       .jpeg({ quality: 80 })
       .toBuffer();
-    return new NextResponse(resized, {
+    return new NextResponse(new Uint8Array(resized), {
       headers: {
         "Content-Type": "image/jpeg",
         "Cache-Control": "public, max-age=86400",

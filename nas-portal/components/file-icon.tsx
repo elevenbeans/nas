@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   FileText, FileSpreadsheet, FileArchive, FileVideo, FileMusic,
-  File as FileIcon, Folder,
+  File as FileDoc, Folder,
 } from "lucide-react";
 import { getFileCategory, isVideoBrowserSupported } from "@/lib/file-types";
 
@@ -73,7 +73,7 @@ export default function FileIcon({ name, isDirectory, path }: FileIconProps) {
     );
   }
 
-  const Icon = iconMap[category] || FileIcon;
+  const Icon = iconMap[category] || FileDoc;
 
   return (
     <div className={`w-11 h-11 rounded-[6px] ${bgColors[category] || "bg-gray-100"} flex items-center justify-center shrink-0`}>

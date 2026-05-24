@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FileRow from "@/components/file-row";
 import { useLanguage } from "@/components/language-toggle";
 import { locales } from "@/lib/i18n";
 
@@ -9,6 +10,7 @@ type FileEntry = {
   isDirectory: boolean;
   size: number | null;
   mtime: string;
+  mimeType?: string | null;
 };
 
 export default function FilesPage() {
@@ -45,7 +47,7 @@ export default function FilesPage() {
   return (
     <div className="max-w-[720px] mx-auto px-4 sm:px-6 pt-10 pb-20">
       <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mb-1">{t.nav.files}</h1>
-      <p className="text-[15px] text-apple-muted mb-8">NAS‑Data{dir}</p>
+      <p className="text-[15px] text-apple-muted mb-4">NAS‑Data{dir}</p>
 
       {dir !== "/" && (
         <button
@@ -56,35 +58,16 @@ export default function FilesPage() {
         </button>
       )}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
       <div className="bg-white rounded-[20px] overflow-hidden">
         {items.map((item) => (
-          <div
+          <FileRow
             key={item.name}
-            className="flex items-center justify-between px-5 py-3 border-b border-[#f0f0f2] last:border-0"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-apple-muted text-lg">{item.isDirectory ? "📁" : "📄"}</span>
-              {item.isDirectory ? (
-                <button
-                  onClick={() => goInto(item.name)}
-                  className="text-sm font-medium text-apple-text bg-transparent border-0 cursor-pointer hover:text-clean-blue"
-                >
-                  {item.name}
-                </button>
-              ) : (
-                <span className="text-sm text-apple-text">{item.name}</span>
-              )}
-            </div>
-            {item.size != null && (
-              <span className="text-xs text-apple-muted">
-                {item.size > 1024 * 1024
-                  ? `${(item.size / 1024 / 1024).toFixed(1)} MB`
-                  : `${(item.size / 1024).toFixed(1)} KB`}
-              </span>
-            )}
-          </div>
+            item={item}
+            dir={dir}
+            onNavigate={goInto}
+          />
         ))}
       </div>
     </div>
