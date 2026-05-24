@@ -1,0 +1,35 @@
+import { NextRequest, NextResponse } from "next/server";
+import { readFileSync } from "fs";
+import sharp from "sharp";
+import { resolveSafePath } from "@/lib/api-utils";
+import { getFileCategory } from "@/lib/file-types";
+
+export async function GET(req: NextRequest) {
+  const filePath = req.nextUrl.searchParams.get("path");
+  if (!filePath) {
+    return NextResponse.json({ error: "Missing path" }, { status: 400 });
+  }
+  const fullPath = resolveSafePath(filePath);
+  if (!fullPath) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+  const category = getFileCategory(filePath);
+  if (category !== "image") {
+    return NextResponse.json({ error: "Not an image" }, { status: 404 });
+  }
+  try {
+    const buf = readFileSync(fullPath);
+    const resized = await sharp(buf)
+      .resize(200, 200, { fit: "cover", position: "centre" })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+    return new NextResponse(resized, {
+      headers: {
+        "Content-Type": "image/jpeg",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  } catch (e) {
+    return NextResponse.json({ error: "Failed to generate thumbnail" }, { status: 500 });
+  }
+}
