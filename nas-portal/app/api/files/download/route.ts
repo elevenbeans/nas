@@ -14,17 +14,23 @@ export async function GET(req: NextRequest) {
   }
   try {
     const stat = statSync(fullPath);
+    if (stat.isDirectory()) {
+      return NextResponse.json({ error: "Cannot download a directory" }, { status: 400 });
+    }
     const mime = getMimeType(filePath);
     const name = filePath.split("/").pop() || "download";
+    const encodedName = encodeURIComponent(name);
     const stream = createReadStream(fullPath);
     return new NextResponse(stream as any, {
       headers: {
         "Content-Type": mime,
-        "Content-Disposition": `attachment; filename="${name}"`,
+        "Content-Disposition": `attachment; filename="${name}"; filename*=UTF-8''${encodedName}`,
         "Content-Length": String(stat.size),
+        "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch {
+  } catch (e) {
+    console.error("Download error:", e);
     return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
 }
