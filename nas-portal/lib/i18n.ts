@@ -32,6 +32,10 @@ export const locales: Record<Locale, {
   files: {
     back: string;
     loadError: string;
+    play: string;
+    download: string;
+    preview: string;
+    hide: string;
   };
   photos: {
     subtitle: string;
@@ -66,6 +70,10 @@ export const locales: Record<Locale, {
     files: {
       back: "← 返回",
       loadError: "无法加载文件",
+      play: "播放",
+      download: "下载",
+      preview: "预览",
+      hide: "隐藏",
     },
     photos: {
       subtitle: "照片时间线",
@@ -157,6 +165,10 @@ export const locales: Record<Locale, {
     files: {
       back: "← Back",
       loadError: "Failed to load files",
+      play: "Play",
+      download: "Download",
+      preview: "Preview",
+      hide: "Hide",
     },
     photos: {
       subtitle: "Photo Timeline",
