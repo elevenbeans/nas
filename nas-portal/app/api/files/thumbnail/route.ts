@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync } from "fs";
 import sharp from "sharp";
 import { resolveSafePath } from "@/lib/api-utils";
 import { getFileCategory } from "@/lib/file-types";
@@ -18,8 +17,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Not an image" }, { status: 404 });
   }
   try {
-    const buf = readFileSync(fullPath);
-    const resized = await sharp(buf)
+    const resized = await sharp(fullPath)
       .resize(200, 200, { fit: "cover", position: "centre" })
       .jpeg({ quality: 80 })
       .toBuffer();
@@ -29,7 +27,7 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "public, max-age=86400",
       },
     });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Failed to generate thumbnail" }, { status: 500 });
   }
 }
