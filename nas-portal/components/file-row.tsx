@@ -25,7 +25,8 @@ type FileRowProps = {
 function formatSize(size: number): string {
   if (size > 1024 * 1024 * 1024) return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
   if (size > 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`;
-  return `${(size / 1024).toFixed(1)} KB`;
+  if (size > 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${size} B`;
 }
 
 export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
@@ -68,7 +69,7 @@ export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
     if (isPreviewableInBrowser(item.name)) {
       return (
         <a
-          href={`/api/files/download?path=${encodeURIComponent(itemPath)}`}
+          href={`/api/files/download?path=${encodeURIComponent(itemPath)}&inline=1`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-clean-blue hover:underline"

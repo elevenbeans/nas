@@ -17,14 +17,16 @@ export async function GET(req: NextRequest) {
     if (stat.isDirectory()) {
       return NextResponse.json({ error: "Cannot download a directory" }, { status: 400 });
     }
+    const inline = req.nextUrl.searchParams.get("inline") === "1";
     const mime = getMimeType(filePath);
     const name = filePath.split("/").pop() || "download";
     const encodedName = encodeURIComponent(name);
+    const disp = inline ? "inline" : "attachment";
     const stream = createReadStream(fullPath);
     return new NextResponse(stream as any, {
       headers: {
         "Content-Type": mime,
-        "Content-Disposition": `attachment; filename="${name}"; filename*=UTF-8''${encodedName}`,
+        "Content-Disposition": `${disp}; filename="${name}"; filename*=UTF-8''${encodedName}`,
         "Content-Length": String(stat.size),
         "X-Content-Type-Options": "nosniff",
       },

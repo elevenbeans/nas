@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FileRow from "@/components/file-row";
 import { useLanguage } from "@/components/language-toggle";
 import { locales } from "@/lib/i18n";
@@ -19,15 +19,27 @@ export default function FilesPage() {
   const [dir, setDir] = useState("/");
   const [items, setItems] = useState<FileEntry[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    fetch(`/api/files?path=${encodeURIComponent(dir)}`)
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setLoading(true);
+
+    fetch(`/api/files?path=${encodeURIComponent(dir)}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setError(data.error);
         else setItems(data.items);
       })
-      .catch(() => setError(t.files.loadError));
+      .catch((e) => {
+        if (e.name !== "AbortError") setError(t.files.loadError);
+      })
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
   }, [dir, t.files.loadError]);
 
   const goInto = (name: string) => {
@@ -60,16 +72,23 @@ export default function FilesPage() {
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-      <div className="bg-white rounded-[20px] overflow-hidden">
-        {items.map((item) => (
-          <FileRow
-            key={item.name}
-            item={item}
-            dir={dir}
-            onNavigate={goInto}
-          />
-        ))}
-      </div>
+      {loading && items.length === 0 && (
+        <div className="bg-white rounded-[20px] overflow-hidden py-8 text-center text-sm text-apple-muted">
+          {t.photos.loading}
+        </div>
+      )}
+      {!loading && (
+        <div className="bg-white rounded-[20px] overflow-hidden">
+          {items.map((item) => (
+            <FileRow
+              key={item.name}
+              item={item}
+              dir={dir}
+              onNavigate={goInto}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

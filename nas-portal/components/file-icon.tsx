@@ -65,6 +65,8 @@ export default function FileIcon({ name, isDirectory, path }: FileIconProps) {
         <img
           src={`/api/files/thumbnail?path=${encodeURIComponent(path)}`}
           alt={name}
+          width={200}
+          height={200}
           className="w-full h-full object-cover"
           onError={() => setThumbError(true)}
           loading="lazy"
