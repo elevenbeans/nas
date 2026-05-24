@@ -1,13 +1,18 @@
 import path from "path";
+import { realpathSync } from "fs";
 
-const BASE = "/Volumes/NAS-Data";
+const BASE = realpathSync("/Volumes/NAS-Data");
 
 export function resolveSafePath(requestedPath: string): string | null {
-  const fullPath = path.resolve(path.join(BASE, requestedPath));
-  if (!fullPath.startsWith(path.resolve(BASE) + path.sep) && fullPath !== path.resolve(BASE)) {
+  try {
+    const fullPath = realpathSync(path.resolve(path.join(BASE, requestedPath)));
+    if (!fullPath.startsWith(BASE + path.sep) && fullPath !== BASE) {
+      return null;
+    }
+    return fullPath;
+  } catch {
     return null;
   }
-  return fullPath;
 }
 
 export { BASE };
