@@ -70,6 +70,7 @@ export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
         <a
           href={`/api/files/download?path=${encodeURIComponent(itemPath)}`}
           target="_blank"
+          rel="noopener noreferrer"
           className="text-xs text-clean-blue hover:underline"
         >
           {t.files.preview}
