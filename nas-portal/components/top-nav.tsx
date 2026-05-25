@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X, Grid3x3 } from "lucide-react";
 import LanguageToggle from "@/components/language-toggle";
 import { useLanguage } from "@/components/language-toggle";
 import { locales } from "@/lib/i18n";
@@ -11,7 +11,8 @@ import { locales } from "@/lib/i18n";
 export default function TopNav() {
   const pathname = usePathname();
   const { locale } = useLanguage();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     { href: "/", label: locales[locale].nav.overview, icon: LayoutDashboard },
@@ -22,16 +23,25 @@ export default function TopNav() {
   ];
 
   useEffect(() => {
-    document.body.style.overflow = drawerOpen ? "hidden" : "";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setDrawerOpen(false);
+      if (e.key === "Escape") setMenuOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
     };
-  }, [drawerOpen]);
+    setTimeout(() => document.addEventListener("click", handleClick), 0);
+    return () => document.removeEventListener("click", handleClick);
+  }, [menuOpen]);
+
+  const currentItem = navItems.find((i) => i.href === pathname);
 
   return (
     <>
@@ -70,67 +80,59 @@ export default function TopNav() {
         </div>
       </nav>
 
-      {/* Mobile bottom tab bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex sm:hidden items-center justify-around bg-white border-t border-[#f0f0f2] pt-1 pb-[env(safe-area-inset-bottom,4px)]">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-[6px] transition-all ${
-                isActive
-                  ? "text-clean-blue font-semibold"
-                  : "text-apple-muted"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-[98]"
-          onClick={() => setDrawerOpen(false)}
-        />
-      )}
-
-      {drawerOpen && (
-      <div className="fixed top-0 right-0 w-[260px] h-full bg-white z-[99] p-6 shadow-[-2px_0_20px_rgba(0,0,0,0.08)]">
+      {/* Mobile right-side floating button + popover */}
+      <div className="sm:hidden" ref={menuRef}>
         <button
-          className="absolute top-5 right-5 text-apple-muted text-2xl bg-transparent border-0 cursor-pointer"
-          onClick={() => setDrawerOpen(false)}
-          aria-label="Close menu"
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="fixed z-50 w-11 h-11 bg-white border border-[#e5e5e7] shadow-lg rounded-full flex items-center justify-center text-apple-muted hover:text-apple-text transition-all active:scale-95"
+          style={{ right: "16px", top: "55%" }}
+          aria-label="Navigation menu"
         >
-          <X className="w-5 h-5" />
+          <Grid3x3 className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-2.5 mb-8 font-heading text-[17px] font-bold">
-          <div className="w-[26px] h-[26px] bg-clean-blue rounded-[6px]" />
-          NAS
-        </div>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setDrawerOpen(false)}
-              className={`flex items-center gap-3 text-[15px] font-medium px-3 py-3 rounded-lg mb-1 ${
-                isActive
-                  ? "text-clean-blue bg-[#eff6ff] font-semibold"
-                  : "text-apple-muted"
-              }`}
+
+        {menuOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setMenuOpen(false)}
+            />
+            <div
+              className="fixed z-50 bg-white rounded-[16px] shadow-xl border border-[#f0f0f2] overflow-hidden"
+              style={{ right: "68px", top: "55%", transform: "translateY(-50%)" }}
             >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </Link>
-          );
-        })}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0f0f2]">
+                <span className="text-[13px] font-semibold text-apple-text">Navigation</span>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="text-apple-muted bg-transparent border-0 cursor-pointer p-0.5"
+                  aria-label="Close menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium transition-all ${
+                      isActive
+                        ? "text-clean-blue bg-[#eff6ff]"
+                        : "text-apple-muted hover:bg-[#f5f5f7]"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5 shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
-      )}
     </>
   );
 }

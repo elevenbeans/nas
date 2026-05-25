@@ -14,8 +14,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           <TopNav />
-          <main className="sm:pb-0 pb-[60px]">{children}</main>
-          <footer className="bg-white border-t border-[#f0f0f2] px-4 sm:px-8 sm:pb-0 pb-[60px]">
+          <main>{children}</main>
+          <footer className="bg-white border-t border-[#f0f0f2] px-4 sm:px-8">
             <div className="max-w-[920px] mx-auto py-8 text-center text-[13px] text-apple-muted leading-relaxed">
               <div>Powered by</div>
               <div className="flex gap-3 justify-center">
