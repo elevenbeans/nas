@@ -32,6 +32,7 @@ export const locales: Record<Locale, {
   files: {
     back: string;
     loadError: string;
+    emptyDir: string;
     play: string;
     download: string;
     preview: string;
@@ -70,6 +71,7 @@ export const locales: Record<Locale, {
     files: {
       back: "← 返回",
       loadError: "无法加载文件",
+      emptyDir: "此目录为空",
       play: "播放",
       download: "下载",
       preview: "预览",
@@ -165,6 +167,7 @@ export const locales: Record<Locale, {
     files: {
       back: "← Back",
       loadError: "Failed to load files",
+      emptyDir: "This folder is empty",
       play: "Play",
       download: "Download",
       preview: "Preview",

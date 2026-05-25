@@ -77,7 +77,12 @@ export default function FilesPage() {
           {t.photos.loading}
         </div>
       )}
-      {!loading && (
+      {!loading && items.length === 0 && !error && (
+        <div className="bg-white rounded-[20px] overflow-hidden py-10 text-center text-sm text-apple-muted">
+          {t.files.emptyDir}
+        </div>
+      )}
+      {!loading && items.length > 0 && (
         <div className="bg-white rounded-[20px] overflow-hidden">
           {items.map((item) => (
             <FileRow
