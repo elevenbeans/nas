@@ -28,4 +28,14 @@
 
 ## v2.2 (2026-05-23)
 
--  **Domain: Applied `elevenbeans.me` on Cloudflare and use subdomain `nas.elevenbeans.me`** to host the service via Cloudflare Tunnel
+- **Domain** — Applied `elevenbeans.me` on Cloudflare, subdomain `nas.elevenbeans.me` via Cloudflare Tunnel
+
+## v3.0 (2026-05-25)
+
+- **Image thumbnails** — macOS as-icon style 44×44 thumbnails in file browser, powered by sharp
+- **Video playback** — inline `<video>` player for .mp4/.webm with HTTP Range streaming support
+- **File type icons** — type-specific lucide-react icons with tinted backgrounds (PDF red, spreadsheet green, etc.)
+- **File download** — dedicated download endpoint with UTF-8 filename encoding, inline preview mode
+- **Video streaming** — HTTP Range 206/416, suffix range support (`bytes=-500`)
+- **Loading & empty states** — loading indicator, abort-on-navigate, "This folder is empty" prompt
+- **New components** — `FileIcon` (icon/thumbnail renderer), `FileRow` (file row with actions + video player)

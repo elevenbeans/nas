@@ -9,7 +9,13 @@ nas-portal/
 ├── app/
 │   ├── api/
 │   │   ├── files/
-│   │   │   └── route.ts              GET /api/files?path=
+│   │   │   ├── route.ts              GET /api/files?path=
+│   │   │   ├── download/
+│   │   │   │   └── route.ts          GET /api/files/download?path=
+│   │   │   ├── stream/
+│   │   │   │   └── route.ts          GET /api/files/stream?path=
+│   │   │   └── thumbnail/
+│   │   │       └── route.ts          GET /api/files/thumbnail?path=
 │   │   ├── photos/
 │   │   │   ├── [name]/
 │   │   │   │   └── route.ts          GET /api/photos/[name]?w=
@@ -30,11 +36,15 @@ nas-portal/
 │   └── globals.css                   Tailwind + theme tokens
 ├── components/
 │   ├── top-nav.tsx                   Navigation bar + mobile drawer
+│   ├── file-icon.tsx                 File type icon + image thumbnail renderer
+│   ├── file-row.tsx                  File row with actions (play/preview/download) + video player
 │   ├── photo-carousel.tsx            Photo carousel (responsive + srcset)
 │   ├── language-toggle.tsx           Language switch + Context
 │   └── providers.tsx                 Client-side providers wrapper
 ├── lib/
 │   ├── api.ts                        SystemStatus type + fetch
+│   ├── api-utils.ts                  File path validation (resolveSafePath)
+│   ├── file-types.ts                 MIME detection + file category classification
 │   └── i18n.ts                       Chinese/English translation dicts
 ├── package.json
 ├── tsconfig.json
@@ -51,7 +61,7 @@ nas-portal/
 | Route | Page | Description |
 |-------|------|-------------|
 | `/` | Dashboard | Greeting, system status (storage/network/services), photo carousel |
-| `/files` | File Browser | Directory tree navigation, path traversal protection, hidden file filter |
+| `/files` | File Browser | Directory tree navigation, image thumbnails, inline video playback, file type icons, download/stream endpoints, path traversal protection |
 | `/photos` | Photo Timeline | Grouped by date, responsive grid, lazy-loaded thumbnails |
 | `/guide` | User Guide | NAS usage guide, FAQ, storage decision table, fully localized |
 | `/settings` | Settings | SMB status, Tailscale status display |
@@ -61,7 +71,10 @@ nas-portal/
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/system/status` | GET | Storage usage (`df -H`), network IP (`ifconfig en0`), SMB service |
-| `/api/files?path=` | GET | Directory listing with path traversal protection |
+| `/api/files?path=` | GET | Directory listing with path traversal protection, returns mimeType per entry |
+| `/api/files/thumbnail?path=` | GET | 200×200 JPEG thumbnail via sharp (fit cover) |
+| `/api/files/download?path=&inline=` | GET | File download with Content-Disposition; `inline=1` for inline preview |
+| `/api/files/stream?path=` | GET | Video streaming with HTTP Range 206/416 support |
 | `/api/photos` | GET | Photo list sorted by mtime desc (jpg/png/heic/webp) |
 | `/api/photos/[name]?w=` | GET | Image serving + sharp server-side resize (JPEG quality 80) |
 
@@ -72,6 +85,8 @@ nas-portal/
 | Component | Description |
 |-----------|-------------|
 | `TopNav` | Sticky navbar, desktop links with active highlighting, mobile slide-in drawer (Escape to close) |
+| `FileIcon` | 44×44 file icon — image thumbnails via sharp, type-specific lucide icons with tinted backgrounds |
+| `FileRow` | File row with FileIcon, formatted size, action link (Play/Preview/Download), inline video player expand |
 | `PhotoCarousel` | CSS scroll-snap carousel, 4s auto-play with scroll pause, responsive breakpoint widths, srcset images |
 | `LanguageToggle` / `LanguageProvider` | Chinese/English toggle, localStorage persistence |
 | `Providers` | Client-side context providers wrapper |
@@ -91,10 +106,14 @@ Browser → Port 80
               │
     ┌─────────┼─────────┐
     │         │         │
-  API/files API/photos  API/system/status
-    │         │         │
-    ▼         ▼         ▼
-/Volumes/NAS-Data/     Shell commands
+  API/files           API/photos  API/system/status
+  ├─ thumbnail        │           │
+  ├─ download          │           │
+  ├─ stream            │           │
+  └─ listing           │           │
+    │                  │           │
+    ▼                  ▼           ▼
+/Volumes/NAS-Data/              Shell commands
   Photos/              df, pgrep, ifconfig
   Videos/
   Downloads/
