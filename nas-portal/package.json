@@ -6,7 +6,7 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "sync": "launchctl bootout gui/$(id -u)/com.nas.portal 2>/dev/null; rm -rf .next && next build && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.nas.portal.plist 2>/dev/null || launchctl load ~/Library/LaunchAgents/com.nas.portal.plist",
+    "sync": "launchctl bootout gui/$(id -u)/com.nas.portal 2>/dev/null; rm -rf .next && next build && { source .env.local 2>/dev/null; curl -sf -X POST \"https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache\" -H \"Authorization: Bearer $CF_API_TOKEN\" -H \"Content-Type: application/json\" --data '{\"purge_everything\":true}' && echo 'CF cache purged'; } && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.nas.portal.plist 2>/dev/null || launchctl load ~/Library/LaunchAgents/com.nas.portal.plist",
     "lint": "next lint"
   },
   "dependencies": {
