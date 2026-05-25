@@ -96,7 +96,7 @@ export default function TopNav() {
           aria-label="Navigation menu"
         >
           <Compass className="w-6 h-6" />
-          <span className="text-[12px] font-medium leading-none">导航</span>
+          <span className="text-[12px] font-medium leading-none pt-[2px]">导航</span>
         </button>
 
         {menuOpen && (
