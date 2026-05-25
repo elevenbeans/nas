@@ -66,18 +66,30 @@ export default function TopNav() {
             <div className="w-7 h-7 bg-clean-blue rounded-full flex items-center justify-center text-white text-[11px] font-heading font-semibold">
               E
             </div>
-            <button
-              className="flex sm:hidden flex-col gap-1.5 p-1.5 bg-transparent border-0 cursor-pointer"
-              onClick={() => setDrawerOpen(true)}
-              aria-label="Open menu"
-            >
-              <span className="block w-5 h-[2px] bg-apple-text rounded" />
-              <span className="block w-5 h-[2px] bg-apple-text rounded" />
-              <span className="block w-5 h-[2px] bg-apple-text rounded" />
-            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile bottom tab bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex sm:hidden items-center justify-around bg-white border-t border-[#f0f0f2] pt-1 pb-[env(safe-area-inset-bottom,4px)]">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-[6px] transition-all ${
+                isActive
+                  ? "text-clean-blue font-semibold"
+                  : "text-apple-muted"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
 
       {drawerOpen && (
         <div
