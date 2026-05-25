@@ -125,7 +125,7 @@ export default function TopNav() {
                     className={`w-[18px] h-[18px] ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
                   />
                   <span
-                    className={`text-[10px] font-medium leading-none ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
+                    className={`text-[12px] font-medium leading-none ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
                   >
                     {item.label}
                   </span>
