@@ -39,3 +39,9 @@
 - **Video streaming** — HTTP Range 206/416, suffix range support (`bytes=-500`)
 - **Loading & empty states** — loading indicator, abort-on-navigate, "This folder is empty" prompt
 - **New components** — `FileIcon` (icon/thumbnail renderer), `FileRow` (file row with actions + video player)
+
+## v3.1 (2026-05-25)
+
+- **Mobile navigation redesign** — right-side floating compass button at thumb level (top 55%), replaces top-right hamburger
+- **Radial menu** — 5 circular nav items arc from 6 to 12 o'clock around the trigger, one-hand thumb friendly
+- **Safe area** — zero bottom overlap, no conflict with browser toolbar or iOS system gestures
