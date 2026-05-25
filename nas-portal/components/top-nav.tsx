@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X, Grid3x3 } from "lucide-react";
+import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X, Compass } from "lucide-react";
 import LanguageToggle from "@/components/language-toggle";
 import { useLanguage } from "@/components/language-toggle";
 import { locales } from "@/lib/i18n";
@@ -12,7 +12,8 @@ export default function TopNav() {
   const pathname = usePathname();
   const { locale } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [positions, setPositions] = useState<{ x: number; y: number }[]>([]);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const navItems = [
     { href: "/", label: locales[locale].nav.overview, icon: LayoutDashboard },
@@ -31,17 +32,22 @@ export default function TopNav() {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    setTimeout(() => document.addEventListener("click", handleClick), 0);
-    return () => document.removeEventListener("click", handleClick);
-  }, [menuOpen]);
-
-  const currentItem = navItems.find((i) => i.href === pathname);
+    if (!menuOpen || !buttonRef.current) {
+      setPositions([]);
+      return;
+    }
+    const rect = buttonRef.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const R = rect.width * 1.8;
+    const items: { x: number; y: number }[] = [];
+    for (let i = 0; i < navItems.length; i++) {
+      const deg = 270 - i * 45;
+      const rad = (deg * Math.PI) / 180;
+      items.push({ x: cx + R * Math.cos(rad), y: cy + R * Math.sin(rad) });
+    }
+    setPositions(items);
+  }, [menuOpen, navItems.length]);
 
   return (
     <>
@@ -80,15 +86,16 @@ export default function TopNav() {
         </div>
       </nav>
 
-      {/* Mobile right-side floating button + popover */}
-      <div className="sm:hidden" ref={menuRef}>
+      {/* Mobile right-side floating button + radial menu */}
+      <div className="sm:hidden">
         <button
+          ref={buttonRef}
           onClick={() => setMenuOpen(!menuOpen)}
-          className="fixed z-50 w-11 h-11 bg-white border border-[#e5e5e7] shadow-lg rounded-full flex items-center justify-center text-apple-muted hover:text-apple-text transition-all active:scale-95"
-          style={{ right: "16px", top: "55%" }}
+          className="fixed z-50 w-20 h-20 bg-white border border-[#e5e5e7] shadow-xl rounded-full flex items-center justify-center text-clean-blue hover:text-clean-blue transition-all active:scale-90"
+          style={{ right: "16px", top: "55%", transform: "translateY(-50%)" }}
           aria-label="Navigation menu"
         >
-          <Grid3x3 className="w-5 h-5" />
+          <Compass className="w-8 h-8" />
         </button>
 
         {menuOpen && (
@@ -97,39 +104,29 @@ export default function TopNav() {
               className="fixed inset-0 z-40"
               onClick={() => setMenuOpen(false)}
             />
-            <div
-              className="fixed z-50 bg-white rounded-[16px] shadow-xl border border-[#f0f0f2] overflow-hidden"
-              style={{ right: "68px", top: "55%", transform: "translateY(-50%)" }}
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0f0f2]">
-                <span className="text-[13px] font-semibold text-apple-text">Navigation</span>
-                <button
+            {navItems.map((item, i) => {
+              const pos = positions[i];
+              if (!pos) return null;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="text-apple-muted bg-transparent border-0 cursor-pointer p-0.5"
-                  aria-label="Close menu"
+                  className="fixed z-50 w-14 h-14 rounded-full flex flex-col items-center justify-center shadow-lg border border-[#f0f0f2] transition-all active:scale-90"
+                  style={{
+                    left: pos.x,
+                    top: pos.y,
+                    transform: "translate(-50%, -50%)",
+                    backgroundColor: isActive ? "#eff6ff" : "white",
+                  }}
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium transition-all ${
-                      isActive
-                        ? "text-clean-blue bg-[#eff6ff]"
-                        : "text-apple-muted hover:bg-[#f5f5f7]"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5 shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
+                  <item.icon
+                    className={`w-6 h-6 ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
+                  />
+                </Link>
+              );
+            })}
           </>
         )}
       </div>
