@@ -91,11 +91,12 @@ export default function TopNav() {
         <button
           ref={buttonRef}
           onClick={() => setMenuOpen(!menuOpen)}
-          className="fixed z-50 w-20 h-20 bg-white border border-[#e5e5e7] shadow-xl rounded-full flex items-center justify-center text-clean-blue hover:text-clean-blue transition-all active:scale-90"
+          className="fixed z-50 w-20 h-20 bg-white border border-[#e5e5e7] shadow-xl rounded-full flex flex-col items-center justify-center gap-[1px] text-clean-blue hover:text-clean-blue transition-all active:scale-90"
           style={{ right: "16px", top: "55%", transform: "translateY(-50%)" }}
           aria-label="Navigation menu"
         >
-          <Compass className="w-8 h-8" />
+          <Compass className="w-6 h-6" />
+          <span className="text-[9px] font-medium leading-none">导航</span>
         </button>
 
         {menuOpen && (
