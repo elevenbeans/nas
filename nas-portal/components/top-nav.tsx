@@ -39,7 +39,7 @@ export default function TopNav() {
     const rect = buttonRef.current.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const R = rect.width * 1.8;
+    const R = rect.width * 1.0;
     const items: { x: number; y: number }[] = [];
     for (let i = 0; i < navItems.length; i++) {
       const deg = 270 - i * 45;
@@ -113,7 +113,7 @@ export default function TopNav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="fixed z-50 w-14 h-14 rounded-full flex flex-col items-center justify-center shadow-lg border border-[#f0f0f2] transition-all active:scale-90"
+                  className="fixed z-50 w-auto min-w-[52px] h-auto rounded-[14px] flex flex-col items-center gap-0.5 py-2 px-3 shadow-lg border border-[#f0f0f2] transition-all active:scale-90"
                   style={{
                     left: pos.x,
                     top: pos.y,
@@ -122,8 +122,13 @@ export default function TopNav() {
                   }}
                 >
                   <item.icon
-                    className={`w-6 h-6 ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
+                    className={`w-5 h-5 ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
                   />
+                  <span
+                    className={`text-[10px] font-medium whitespace-nowrap ${isActive ? "text-clean-blue" : "text-apple-muted"}`}
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}
