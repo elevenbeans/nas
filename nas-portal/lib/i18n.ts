@@ -139,8 +139,8 @@ export const locales: Record<Locale, {
           title: "要不要存 NAS？听听管理员的建议",
           headers: ["很重要？", "可共享？", "存储方案", "说明"],
           rows: [
-            ["✅", "✅", "NAS + Local", "内网共享，Local + NAS 双备份"],
-            ["❌", "✅", "NAS", "内网共享，NAS 存储"],
+            ["✅", "✅", "NAS + Local", "公网可读，内网读写，Local + NAS 双备份"],
+            ["❌", "✅", "NAS", "公网可读，内网读写，NAS 存储"],
             ["✅", "❌", "Local", "个人 access，自备份"],
             ["❌", "❌", "Local", "个人 access，不备份"],
           ],
