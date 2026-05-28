@@ -38,15 +38,15 @@ export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
 
   if (item.isDirectory) {
     return (
-      <div className="flex items-center justify-between px-5 py-3 border-b border-[#f0f0f2] last:border-0">
+      <div
+        onClick={() => onNavigate(item.name)}
+        className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f2] last:border-0 cursor-pointer active:bg-gray-50"
+      >
         <div className="flex items-center gap-3 min-w-0">
           <FileIcon name={item.name} isDirectory path={itemPath} />
-          <button
-            onClick={() => onNavigate(item.name)}
-            className="text-sm font-medium text-apple-text bg-transparent border-0 cursor-pointer hover:text-clean-blue truncate"
-          >
+          <span className="text-sm font-medium text-apple-text truncate hover:text-clean-blue">
             {item.name}
-          </button>
+          </span>
         </div>
         <span className="text-xs text-apple-muted shrink-0 ml-4">—</span>
       </div>
@@ -90,7 +90,7 @@ export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between px-5 py-3 border-b border-[#f0f0f2] last:border-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f2] last:border-0">
         <div className="flex items-center gap-3 min-w-0">
           <FileIcon name={item.name} isDirectory={false} path={itemPath} />
           <div className="min-w-0">
