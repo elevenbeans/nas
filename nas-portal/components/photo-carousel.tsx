@@ -76,7 +76,7 @@ export default function PhotoCarousel({ photos, loading }: { photos: PhotoInfo[]
       <div className="relative left-1/2 -translate-x-1/2 w-screen mb-6">
         <style>{`@keyframes carouselZoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }`}</style>
         <div className="bg-[#e8e8ed] h-48 md:h-64 w-full animate-pulse" />
-        <div className="w-[max(16px,min(calc(50vw-444px),30%))] sm:w-[max(24px,min(calc(50vw-436px),30%))] h-1 bg-[#e8e8ed] rounded-full mt-6 mx-auto overflow-hidden">
+        <div className="w-[max(96px,min(calc(50vw-444px),30%))] sm:w-[max(96px,min(calc(50vw-436px),30%))] h-1 bg-[#e8e8ed] rounded-full mt-6 mx-auto overflow-hidden">
           <div className="h-full w-1/3 bg-[#d4d4d8] rounded-full animate-pulse" />
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function PhotoCarousel({ photos, loading }: { photos: PhotoInfo[]
           ))}
         </ul>
       </div>
-      <div className="w-[max(16px,min(calc(50vw-444px),30%))] sm:w-[max(24px,min(calc(50vw-436px),30%))] h-1 bg-[#e8e8ed] rounded-full mt-6 mx-auto overflow-hidden">
+      <div className="w-[max(96px,min(calc(50vw-444px),30%))] sm:w-[max(96px,min(calc(50vw-436px),30%))] h-1 bg-[#e8e8ed] rounded-full mt-6 mx-auto overflow-hidden">
         <div className="h-full bg-clean-blue rounded-full" style={{ width: `${progress * 100}%` }} />
       </div>
     </div>
