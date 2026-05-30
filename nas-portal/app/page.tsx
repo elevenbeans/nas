@@ -12,13 +12,16 @@ export default function Dashboard() {
   const t = locales[locale].dashboard;
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [photos, setPhotos] = useState<PhotoInfo[]>([]);
+  const [photosLoading, setPhotosLoading] = useState(true);
 
   useEffect(() => {
     fetchSystemStatus().then(setStatus).catch(console.error);
+    setPhotosLoading(true);
     fetch("/api/photos")
       .then((r) => r.json())
       .then((data) => setPhotos(data.photos || []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setPhotosLoading(false));
   }, []);
 
   return (
@@ -30,7 +33,7 @@ export default function Dashboard() {
         <p className="text-[15px] text-apple-muted">{t.welcomeBack}</p>
       </div>
 
-      <PhotoCarousel photos={photos} />
+      <PhotoCarousel photos={photos} loading={photosLoading} />
 
       {/* Storage block */}
       <div className="bg-white rounded-[20px] p-6 mb-4">

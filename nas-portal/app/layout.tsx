@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div>Powered by</div>
               <div className="flex gap-3 justify-center">
                 <a href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer" className="text-clean-blue hover:underline">Deepseek v4</a>
-                <a href="https://elevenbeans.github.io" target="_blank" rel="noopener noreferrer" className="text-clean-blue hover:underline">elevenbeans.github.io</a>
+                <a href="https://elevenbeans.me" target="_blank" rel="noopener noreferrer" className="text-clean-blue hover:underline">elevenbeans.me</a>
                 <a href="https://opencode.ai" target="_blank" rel="noopener noreferrer" className="text-clean-blue hover:underline">opencode</a>
               </div>
             </div>
