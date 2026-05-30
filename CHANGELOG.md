@@ -40,6 +40,12 @@
 - **Loading & empty states** — loading indicator, abort-on-navigate, "This folder is empty" prompt
 - **New components** — `FileIcon` (icon/thumbnail renderer), `FileRow` (file row with actions + video player)
 
+## v3.1 (2026-05-25)
+
+- **Mobile navigation redesign** — right-side floating compass button at thumb level (top 55%), replaces top-right hamburger
+- **Radial menu** — 5 circular nav items arc from 6 to 12 o'clock around the trigger, one-hand thumb friendly
+- **Safe area** — zero bottom overlap, no conflict with browser toolbar or iOS system gestures
+
 ## v3.2 (2026-05-31)
 
 - **10 photos on carousel** — increased from 6 to 10 random picks per session
@@ -47,9 +53,3 @@
 - **Zoom-in entrance** — per-photo staggered zoom-in animation (600ms gap, 600ms duration)
 - **Progress bar** — replaced dot indicators with continuous scroll progress bar
 - **Footer URL update** — `elevenbeans.github.io` → `elevenbeans.me`
-
-## v3.1 (2026-05-25)
-
-- **Mobile navigation redesign** — right-side floating compass button at thumb level (top 55%), replaces top-right hamburger
-- **Radial menu** — 5 circular nav items arc from 6 to 12 o'clock around the trigger, one-hand thumb friendly
-- **Safe area** — zero bottom overlap, no conflict with browser toolbar or iOS system gestures
