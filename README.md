@@ -71,6 +71,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 - **Port 80:** socat (root LaunchDaemon) → Next.js (user LaunchAgent) — avoids pf/TCC issues
 - **Font:** system font stack — zero external requests, matches Apple China feel
 - **Photo serving:** custom API route with sharp — no Immich/PhotoPrism
+- **Movies access control:** `Movies/` is restricted on external network (Cloudflare Tunnel) — only name+size visible, no preview/download/stream; internal LAN retains full playback via Host-header detection (`lib/network-utils.ts`)
 
 
 ## NAS Portal
@@ -92,6 +93,7 @@ Detailed component breakdown, API endpoints, page descriptions, and feature prog
 
 ```
 https://nas.elevenbeans.me/       — NAS Portal (外网, via Cloudflare Tunnel)
-http://192.168.1.x/               — NAS Portal (内网)
+                                  — Movies/ 目录仅显示名称和大小，含版权合规提示
+http://192.168.1.x/               — NAS Portal (内网, 全部功能)
 smb://192.168.1.x/NAS-Data        — SMB mount
 ```

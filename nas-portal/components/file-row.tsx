@@ -20,6 +20,7 @@ type FileRowProps = {
   item: FileEntry;
   dir: string;
   onNavigate: (name: string) => void;
+  restricted?: boolean;
 };
 
 function formatSize(size: number): string {
@@ -29,7 +30,7 @@ function formatSize(size: number): string {
   return `${size} B`;
 }
 
-export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
+export default function FileRow({ item, dir, onNavigate, restricted }: FileRowProps) {
   const { locale } = useLanguage();
   const t = locales[locale];
   const [showVideo, setShowVideo] = useState(false);
@@ -56,6 +57,9 @@ export default function FileRow({ item, dir, onNavigate }: FileRowProps) {
   const category = getFileCategory(item.name);
 
   const renderAction = () => {
+    if (restricted) {
+      return <span className="text-xs text-apple-muted">—</span>;
+    }
     if (category === "video" && isVideoBrowserSupported(item.name)) {
       return (
         <button

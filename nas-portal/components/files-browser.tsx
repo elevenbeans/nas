@@ -27,6 +27,7 @@ export default function FilesBrowser() {
   const [items, setItems] = useState<FileEntry[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [restricted, setRestricted] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const dir = dirFromUrl(pathname);
@@ -41,7 +42,10 @@ export default function FilesBrowser() {
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setError(data.error);
-        else setItems(data.items);
+        else {
+          setItems(data.items);
+          setRestricted(data.restricted === true);
+        }
       })
       .catch((e) => {
         if (e.name !== "AbortError") setError(t.files.loadError);
@@ -80,6 +84,13 @@ export default function FilesBrowser() {
         </button>
       )}
 
+      {restricted && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4">
+          <p className="text-sm font-medium text-amber-800">{t.files.restrictedTitle}</p>
+          <p className="text-xs text-amber-700 mt-1">{t.files.restrictedNotice}</p>
+        </div>
+      )}
+
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
       {loading && items.length === 0 && (
@@ -95,7 +106,7 @@ export default function FilesBrowser() {
       {!loading && items.length > 0 && (
         <div className="bg-white rounded-[20px] overflow-hidden">
           {items.map((item) => (
-            <FileRow key={item.name} item={item} dir={dir} onNavigate={goInto} />
+            <FileRow key={item.name} item={item} dir={dir} onNavigate={goInto} restricted={restricted} />
           ))}
         </div>
       )}

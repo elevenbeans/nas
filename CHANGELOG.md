@@ -53,3 +53,9 @@
 - **Zoom-in entrance** — per-photo staggered zoom-in animation (600ms gap, 600ms duration)
 - **Progress bar** — replaced dot indicators with continuous scroll progress bar
 - **Footer URL update** — `elevenbeans.github.io` → `elevenbeans.me`
+
+## v3.3 (2026-05-31)
+
+- **Movies folder access control** — external network (Cloudflare Tunnel) restricted to name+size only with copyright compliance notice; internal network retains full movie icons and play/preview/download
+- **Network-aware API layer** — `lib/network-utils.ts` detects internal vs external via Host header; `/api/files` hides mimeType/mtime under restriction; download/stream/thumbnail endpoints return 403 for Movies/ on external access
+- **Restricted UI mode** — amber compliance banner on `/files` when browsing `Movies/` externally; FileRow suppresses play/preview/download actions

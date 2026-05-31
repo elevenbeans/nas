@@ -37,6 +37,8 @@ export const locales: Record<Locale, {
     download: string;
     preview: string;
     hide: string;
+    restrictedTitle: string;
+    restrictedNotice: string;
   };
   photos: {
     subtitle: string;
@@ -76,6 +78,8 @@ export const locales: Record<Locale, {
       download: "下载",
       preview: "预览",
       hide: "隐藏",
+      restrictedTitle: "版权与合规声明",
+      restrictedNotice: "此目录中的影视文件受版权保护。根据相关法律法规，未经授权不得在外部网络进行预览、浏览或下载。请通过家庭内网（同一 WiFi）访问以获取完整功能。",
     },
     photos: {
       subtitle: "照片时间线",
@@ -172,6 +176,8 @@ export const locales: Record<Locale, {
       download: "Download",
       preview: "Preview",
       hide: "Hide",
+      restrictedTitle: "Copyright & Compliance Notice",
+      restrictedNotice: "Movie files in this directory are protected by copyright. Unauthorized preview, browsing, or download from external networks is prohibited by law. Please access via your home network (same WiFi) for full functionality.",
     },
     photos: {
       subtitle: "Photo Timeline",
