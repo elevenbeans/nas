@@ -55,6 +55,7 @@ export default function FileRow({ item, dir, onNavigate, restricted }: FileRowPr
   }
 
   const category = getFileCategory(item.name);
+  const isPlayableVideo = !restricted && category === "video" && isVideoBrowserSupported(item.name);
 
   const renderAction = () => {
     if (restricted) {
@@ -62,12 +63,9 @@ export default function FileRow({ item, dir, onNavigate, restricted }: FileRowPr
     }
     if (category === "video" && isVideoBrowserSupported(item.name)) {
       return (
-        <button
-          onClick={() => setShowVideo(!showVideo)}
-          className="text-xs text-clean-blue bg-transparent border-0 cursor-pointer hover:underline"
-        >
+        <span className="text-xs text-clean-blue">
           {showVideo ? t.files.hide : t.files.play}
-        </button>
+        </span>
       );
     }
     if (isPreviewableInBrowser(item.name)) {
@@ -83,32 +81,56 @@ export default function FileRow({ item, dir, onNavigate, restricted }: FileRowPr
       );
     }
     return (
-      <a
-        href={`/api/files/download?path=${encodeURIComponent(itemPath)}`}
-        className="text-xs text-apple-muted hover:text-clean-blue"
-      >
-        {t.files.download}
-      </a>
+        <a
+          href={`/api/files/download?path=${encodeURIComponent(itemPath)}`}
+          className="text-xs text-apple-muted hover:text-clean-blue"
+        >
+          {t.files.download}
+        </a>
     );
   };
 
+  const row = (
+    <div className="flex items-center gap-3 min-w-0 pointer-events-none">
+      <FileIcon name={item.name} isDirectory={false} path={itemPath} />
+      <div className="min-w-0">
+        <div className="text-sm text-apple-text truncate">{item.name}</div>
+        <div className="mt-0.5">{renderAction()}</div>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f2] last:border-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <FileIcon name={item.name} isDirectory={false} path={itemPath} />
-          <div className="min-w-0">
-            <div className="text-sm text-apple-text truncate">{item.name}</div>
-            <div className="mt-0.5">{renderAction()}</div>
+      {isPlayableVideo ? (
+        <div
+          onClick={() => setShowVideo(!showVideo)}
+          className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f2] last:border-0 cursor-pointer active:bg-gray-50"
+        >
+          {row}
+          <div className="flex items-center gap-3 shrink-0 ml-4 pointer-events-none">
+            {item.size != null && (
+              <span className="text-xs text-apple-muted">{formatSize(item.size)}</span>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0 ml-4">
-          {item.size != null && (
-            <span className="text-xs text-apple-muted">{formatSize(item.size)}</span>
-          )}
+      ) : (
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f2] last:border-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <FileIcon name={item.name} isDirectory={false} path={itemPath} />
+            <div className="min-w-0">
+              <div className="text-sm text-apple-text truncate">{item.name}</div>
+              <div className="mt-0.5">{renderAction()}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0 ml-4">
+            {item.size != null && (
+              <span className="text-xs text-apple-muted">{formatSize(item.size)}</span>
+            )}
+          </div>
         </div>
-      </div>
-      {showVideo && category === "video" && (
+      )}
+      {showVideo && isPlayableVideo && (
         <div className="px-5 py-3 border-b border-[#f0f0f2] bg-gray-50">
           <video
             controls

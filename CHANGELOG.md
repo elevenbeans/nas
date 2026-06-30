@@ -59,3 +59,8 @@
 - **Movies folder access control** — external network (Cloudflare Tunnel) restricted to name+size only with copyright compliance notice; internal network retains full movie icons and play/preview/download
 - **Network-aware API layer** — `lib/network-utils.ts` detects internal vs external via Host header; `/api/files` hides mimeType/mtime under restriction; download/stream/thumbnail endpoints return 403 for Movies/ on external access
 - **Restricted UI mode** — amber compliance banner on `/files` when browsing `Movies/` externally; FileRow suppresses play/preview/download actions
+
+## v3.4 (2026-07-01)
+
+- **Mobile video tap target** — entire file row is now tappable to play/hide video, replacing the small text button with full-row tap for easier one-hand use
+- **Play/hide copy** — updated to "点击可播放"/"点击可隐藏" (CN) and "Tap to play"/"Tap to hide" (EN) for clearer affordance
