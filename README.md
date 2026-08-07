@@ -32,11 +32,13 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 │  ┌─────────────────────────────┐  ┌────────────────────┐    │
 │  │    NAS Portal (port 3000)   │  │   SMB (port 445)   │    │
 │  │          Next.js 15         │  │    macOS smbd      │    │
-│  │  ┌────┬─────┬────────────┐  │  │                    │    │
-│  │  │Dash│Files│Photos(API) │  │  └─────────┬──────────┘    │
-│  │  └────┴─────┴────────────┘  │            │               │
-│  └────────────┬────────────────┘            │               │
-│               │                             │               │
+│  │  ┌────┬─────┬────────┬───┐  │  │                    │    │
+│  │  │Dash│Files│Photos  │Chat│  │  └─────────┬──────────┘    │
+│  │  └────┴─────┴────────┴─┬─┘  │            │               │
+│  │     Ollama(127.0.0.1)  │    │            │               │
+│  └────────────┬───────────┼────┘            │               │
+│               │           │                 │               │
+│               ▼           ▼                 ▼               │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │  WD Red 3TB (APFS)                                   │   │
 │  │  /Volumes/NAS-Data                                   │   │
@@ -58,8 +60,10 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 | Styling | Tailwind CSS v4 (`@theme` tokens) |
 | Icons | lucide-react |
 | Image Processing | sharp (server-side resize, `?w=` param, UA-aware mobile compress) |
+| Local AI | Ollama (qwen3:4b) + react-markdown + remark-gfm |
+| EXIF | exifr (photo timeline capture-date) |
 | Font | System font stack (`-apple-system, SF Pro Text, Segoe UI, ...`) |
-| Layout | `max-w-[920px]` centered container, responsive mobile drawer |
+| Layout | `max-w-[920px]` centered container, mobile floating compass nav |
 | Color | Apple-inspired palette, accent `#006EDB`, bg `#FBFBFD` |
 | Design | Apple-style, card-based, Chinese UI |
 | Browser Support | Chrome 77+ (browserslist), iOS WKWebView compatible |
@@ -72,6 +76,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 - **Font:** system font stack — zero external requests, matches Apple China feel
 - **Photo serving:** custom API route with sharp — no Immich/PhotoPrism
 - **Movies access control:** `Movies/` is restricted on external network (Cloudflare Tunnel) — only name+size visible, no preview/download/stream; internal LAN retains full playback via Host-header detection (`lib/network-utils.ts`)
+- **Local AI chat:** `/chat` page answers NAS usage questions via a local Ollama `qwen3:4b` model — no cloud dependency, data never leaves the NAS; knowledge-grounded via `lib/nas-knowledge.ts`, streaming replies, per-IP rate limit on the public endpoint
 
 
 ## NAS Portal
@@ -96,4 +101,5 @@ https://nas.elevenbeans.me/       — NAS Portal (外网, via Cloudflare Tunnel)
                                   — Movies/ 目录仅显示名称和大小，含版权合规提示
 http://192.168.1.x/               — NAS Portal (内网, 全部功能)
 smb://192.168.1.x/NAS-Data        — SMB mount
+/chat                             — NAS 助手 (本地 AI 问答, 中英双语)
 ```
