@@ -16,9 +16,7 @@ const buckets = new Map<string, number[]>();
 function getClientIp(req: NextRequest): string {
   const cf = req.headers.get("cf-connecting-ip");
   if (cf) return cf;
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
+  return "unknown";
 }
 
 function rateLimited(ip: string): boolean {
