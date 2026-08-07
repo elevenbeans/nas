@@ -45,8 +45,11 @@ export default function ChatPage() {
         body: JSON.stringify({ messages: history, locale }),
       });
       if (!res.ok || !res.body) {
-        const data = await res.json().catch(() => null);
-        setError(data?.error ? t.errorOffline : t.error);
+        if (res.status === 503) {
+          setError(t.errorOffline);
+        } else {
+          setError(t.error);
+        }
         setMessages([...history]);
         return;
       }
@@ -98,7 +101,10 @@ export default function ChatPage() {
             >
               {msg.content}
               {msg.role === "assistant" && loading && i === messages.length - 1 && msg.content === "" && (
-                <Loader2 className="w-4 h-4 animate-spin text-apple-muted" />
+                <span className="flex items-center gap-2 text-apple-muted">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t.thinking}
+                </span>
               )}
             </div>
           </div>
@@ -115,12 +121,13 @@ export default function ChatPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
               e.preventDefault();
               send();
             }
           }}
           placeholder={t.placeholder}
+          maxLength={2000}
           disabled={loading}
           className="flex-1 min-w-0 bg-transparent px-3 py-2 text-[15px] outline-none placeholder:text-apple-muted disabled:opacity-50"
         />
