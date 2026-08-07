@@ -42,8 +42,9 @@ export default function TopNav() {
     const cy = rect.top + rect.height / 2;
     const R = rect.width * 1.4;
     const items: { x: number; y: number }[] = [];
+    const step = 180 / Math.max(navItems.length - 1, 1);
     for (let i = 0; i < navItems.length; i++) {
-      const deg = 270 - i * 45;
+      const deg = 270 - i * step;
       const rad = (deg * Math.PI) / 180;
       items.push({ x: cx + R * Math.cos(rad), y: cy + R * Math.sin(rad) });
     }
