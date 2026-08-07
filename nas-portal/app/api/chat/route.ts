@@ -18,6 +18,12 @@ export async function POST(req: NextRequest) {
   }
 
   const messages = body.messages ?? [];
+  if (
+    !Array.isArray(messages) ||
+    messages.some((m) => typeof m?.role !== "string" || typeof m?.content !== "string")
+  ) {
+    return new Response(JSON.stringify({ error: "invalid messages" }), { status: 400 });
+  }
   const last = messages[messages.length - 1]?.content?.trim();
   if (!last || last.length > 2000) {
     return new Response(JSON.stringify({ error: "empty or too long message" }), { status: 400 });
@@ -77,10 +83,21 @@ export async function POST(req: NextRequest) {
             if (content) controller.enqueue(encoder.encode(content));
           }
         }
+        buffer += decoder.decode();
+        const trimmed = buffer.trim();
+        if (trimmed.startsWith("{")) {
+          try {
+            const json = JSON.parse(trimmed);
+            const content = json.message?.content ?? "";
+            if (content) controller.enqueue(encoder.encode(content));
+          } catch {
+            // ignore malformed final line
+          }
+        }
+        controller.close();
       } catch (err) {
         controller.error(err);
       } finally {
-        controller.close();
         reader.releaseLock();
       }
     },
