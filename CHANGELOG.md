@@ -64,3 +64,9 @@
 
 - **Mobile video tap target** — entire file row is now tappable to play/hide video, replacing the small text button with full-row tap for easier one-hand use
 - **Play/hide copy** — updated to "点击可播放"/"点击可隐藏" (CN) and "Tap to play"/"Tap to hide" (EN) for clearer affordance
+
+## v3.5 (2026-08-07)
+
+- **Local AI assistant** — `/chat` page with a bilingual streaming chat interface answering questions about how this NAS works
+- **Local LLM service** — Ollama serving `qwen3:4b` on-device (launchd auto-start), no cloud dependency or data leaving the NAS
+- **Knowledge-grounded answers** — system prompt built from curated NAS facts (`lib/nas-knowledge.ts`) covering files, photos, SMB, remote access, storage plans, and copyright restrictions
