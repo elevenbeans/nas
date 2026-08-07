@@ -53,6 +53,17 @@ export const locales: Record<Locale, {
     tailscale: string;
     notConfigured: string;
   };
+  chat: {
+    title: string;
+    subtitle: string;
+    placeholder: string;
+    send: string;
+    thinking: string;
+    errorOffline: string;
+    error: string;
+    you: string;
+    assistant: string;
+  };
 }> = {
   zh: {
     nav: {
@@ -61,6 +72,7 @@ export const locales: Record<Locale, {
       photos: "照片",
       guide: "指南",
       settings: "设置",
+      chat: "助手",
     },
     dashboard: {
       welcomeBack: "欢迎回家",
@@ -93,6 +105,17 @@ export const locales: Record<Locale, {
       running: "运行中",
       tailscale: "远程访问 (Tailscale)",
       notConfigured: "未配置",
+    },
+    chat: {
+      title: "NAS 助手",
+      subtitle: "询问任何关于这台 NAS 的问题，由本地 AI 回答",
+      placeholder: "输入你的问题…",
+      send: "发送",
+      thinking: "思考中…",
+      errorOffline: "本地 AI 服务未启动，请稍后再试。",
+      error: "出错了，请重试。",
+      you: "你",
+      assistant: "助手",
     },
     guide: {
       title: "使用指南",
@@ -159,6 +182,7 @@ export const locales: Record<Locale, {
       photos: "Photos",
       guide: "Guide",
       settings: "Settings",
+      chat: "Chat",
     },
     dashboard: {
       welcomeBack: "Welcome back",
@@ -191,6 +215,17 @@ export const locales: Record<Locale, {
       running: "Running",
       tailscale: "Remote Access (Tailscale)",
       notConfigured: "Not Configured",
+    },
+    chat: {
+      title: "NAS Assistant",
+      subtitle: "Ask anything about this NAS — answered by a local AI",
+      placeholder: "Type your question…",
+      send: "Send",
+      thinking: "Thinking…",
+      errorOffline: "Local AI service is offline. Please try again later.",
+      error: "Something went wrong. Please retry.",
+      you: "You",
+      assistant: "Assistant",
     },
     guide: {
       title: "User Guide",

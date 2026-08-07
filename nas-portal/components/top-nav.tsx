@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X, Compass } from "lucide-react";
+import { LayoutDashboard, FolderOpen, Image, Settings, BookOpen, X, Compass, MessageCircle } from "lucide-react";
 import LanguageToggle from "@/components/language-toggle";
 import { useLanguage } from "@/components/language-toggle";
 import { locales } from "@/lib/i18n";
@@ -21,6 +21,7 @@ export default function TopNav() {
     { href: "/photos", label: locales[locale].nav.photos, icon: Image },
     { href: "/guide", label: locales[locale].nav.guide, icon: BookOpen },
     { href: "/settings", label: locales[locale].nav.settings, icon: Settings },
+    { href: "/chat", label: locales[locale].nav.chat, icon: MessageCircle },
   ];
 
   useEffect(() => {
