@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useLanguage } from "@/components/language-toggle";
+import { MarkdownContent } from "@/components/markdown-content";
 import { locales } from "@/lib/i18n";
 
 interface ChatMessage {
@@ -93,18 +94,25 @@ export default function ChatPage() {
               {msg.role === "user" ? <User className="w-[18px] h-[18px]" /> : <Bot className="w-[18px] h-[18px]" />}
             </div>
             <div
-              className={`max-w-[85%] rounded-[20px] px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap break-words ${
+              className={`max-w-[85%] rounded-[20px] px-4 py-3 text-[14px] leading-relaxed break-words ${
                 msg.role === "user"
-                  ? "bg-clean-blue text-white rounded-tr-[6px]"
+                  ? "bg-clean-blue text-white rounded-tr-[6px] whitespace-pre-wrap"
                   : "bg-white text-apple-text rounded-tl-[6px]"
               }`}
             >
-              {msg.content}
-              {msg.role === "assistant" && loading && i === messages.length - 1 && msg.content === "" && (
-                <span className="flex items-center gap-2 text-apple-muted">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {t.thinking}
-                </span>
+              {msg.role === "user" ? (
+                msg.content
+              ) : (
+                <>
+                  {msg.content === "" && loading && i === messages.length - 1 ? (
+                    <span className="flex items-center gap-2 text-apple-muted">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t.thinking}
+                    </span>
+                  ) : (
+                    <MarkdownContent content={msg.content} />
+                  )}
+                </>
               )}
             </div>
           </div>
