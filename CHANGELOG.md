@@ -70,3 +70,6 @@
 - **Local AI assistant** — `/chat` page with a bilingual streaming chat interface answering questions about how this NAS works
 - **Local LLM service** — Ollama serving `qwen3:4b` on-device (launchd auto-start), no cloud dependency or data leaving the NAS
 - **Knowledge-grounded answers** — system prompt built from curated NAS facts (`lib/nas-knowledge.ts`) covering files, photos, SMB, remote access, storage plans, and copyright restrictions
+- **Markdown rendering** — assistant replies rendered as styled markdown (`react-markdown` + GFM), with Apple-style links, lists, code blocks, tables, and headings
+- **Abuse protection** — per-IP rate limit (10 msg/min via `cf-connecting-ip`) on the public `/api/chat` endpoint
+- **Robustness fixes** — decoder tail flush, runtime message validation, IME-safe Enter submit, status-aware offline error, 2000-char input cap, mobile radial menu overflow fix with the 6th nav item
