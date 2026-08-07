@@ -9,7 +9,43 @@ interface ClientMessage {
   content: string;
 }
 
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 10;
+const buckets = new Map<string, number[]>();
+
+function getClientIp(req: NextRequest): string {
+  const cf = req.headers.get("cf-connecting-ip");
+  if (cf) return cf;
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return req.headers.get("x-real-ip") ?? "unknown";
+}
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const cutoff = now - RATE_WINDOW_MS;
+  if (buckets.size > 500) {
+    for (const [k, times] of buckets) {
+      const fresh = times.filter((t) => t > cutoff);
+      if (fresh.length === 0) buckets.delete(k);
+      else buckets.set(k, fresh);
+    }
+  }
+  const times = (buckets.get(ip) ?? []).filter((t) => t > cutoff);
+  if (times.length >= RATE_MAX) {
+    buckets.set(ip, times);
+    return true;
+  }
+  times.push(now);
+  buckets.set(ip, times);
+  return false;
+}
+
 export async function POST(req: NextRequest) {
+  if (rateLimited(getClientIp(req))) {
+    return new Response(JSON.stringify({ error: "rate limited" }), { status: 429 });
+  }
+
   let body: { messages?: ClientMessage[]; locale?: "zh" | "en" };
   try {
     body = await req.json();
