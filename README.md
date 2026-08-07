@@ -56,6 +56,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 │  │└── Backups/                                         │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
+```
 
 ## Frontend Tech Stack
 
