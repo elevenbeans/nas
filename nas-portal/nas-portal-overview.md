@@ -8,6 +8,8 @@
 nas-portal/
 ├── app/
 │   ├── api/
+│   │   ├── chat/
+│   │   │   └── route.ts              POST /api/chat (local AI assistant, streaming)
 │   │   ├── files/
 │   │   │   ├── route.ts              GET /api/files?path=
 │   │   │   ├── download/
@@ -23,8 +25,11 @@ nas-portal/
 │   │   └── system/
 │   │       └── status/
 │   │           └── route.ts          GET /api/system/status
+│   ├── chat/
+│   │   └── page.tsx                  AI chat assistant
 │   ├── files/
-│   │   └── page.tsx                  File browser
+│   │   ├── page.tsx                  File browser
+│   │   └── [...path]/page.tsx        File sub-folder catch-all
 │   ├── guide/
 │   │   └── page.tsx                  User guide
 │   ├── photos/
@@ -35,17 +40,21 @@ nas-portal/
 │   ├── page.tsx                      Dashboard (home)
 │   └── globals.css                   Tailwind + theme tokens
 ├── components/
-│   ├── top-nav.tsx                   Navigation bar + mobile drawer
+│   ├── top-nav.tsx                   Sticky navbar + mobile floating compass radial menu
+│   ├── files-browser.tsx             File list + navigation state (mobile-friendly)
 │   ├── file-icon.tsx                 File type icon + image thumbnail renderer
 │   ├── file-row.tsx                  File row with actions (play/preview/download) + video player
 │   ├── photo-carousel.tsx            Photo carousel (responsive + srcset)
 │   ├── language-toggle.tsx           Language switch + Context
+│   ├── markdown-content.tsx          Markdown renderer for chat replies
 │   └── providers.tsx                 Client-side providers wrapper
 ├── lib/
 │   ├── api.ts                        SystemStatus type + fetch
 │   ├── api-utils.ts                  File path validation (resolveSafePath)
 │   ├── file-types.ts                 MIME detection + file category classification
-│   └── i18n.ts                       Chinese/English translation dicts
+│   ├── i18n.ts                       Chinese/English translation dicts
+│   ├── nas-knowledge.ts              NAS facts + chat system-prompt builder
+│   └── network-utils.ts              Internal vs external network detection
 ├── package.json
 ├── tsconfig.json
 ├── next.config.ts
@@ -60,23 +69,25 @@ nas-portal/
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | Dashboard | Greeting, system status (storage/network/services), photo carousel |
-| `/files` | File Browser | Directory tree navigation, image thumbnails, inline video playback, file type icons, download/stream endpoints, path traversal protection |
-| `/photos` | Photo Timeline | Grouped by date, responsive grid, lazy-loaded thumbnails |
+| `/` | Dashboard | Greeting, system status (storage/network/services), photo carousel (10 random picks) |
+| `/files` | File Browser | Directory tree navigation, image thumbnails, inline video playback, file type icons, download/stream endpoints, path traversal protection, empty-state message |
+| `/photos` | Photo Timeline | Grouped by EXIF capture date into monthly groups, responsive grid, lazy-loaded thumbnails |
 | `/guide` | User Guide | NAS usage guide, FAQ, storage decision table, fully localized |
 | `/settings` | Settings | SMB status, Tailscale status display |
+| `/chat` | AI Assistant | Streaming chat with a local LLM answering questions about this NAS |
 
 ## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/system/status` | GET | Storage usage (`df -H`), network IP (`ifconfig en0`), SMB service |
-| `/api/files?path=` | GET | Directory listing with path traversal protection, returns mimeType per entry |
+| `/api/files?path=` | GET | Directory listing with path traversal protection, returns mimeType per entry; Movies/ folder restricted over external network (name+size only) |
 | `/api/files/thumbnail?path=` | GET | 200×200 JPEG thumbnail via sharp (fit cover) |
-| `/api/files/download?path=&inline=` | GET | File download with Content-Disposition; `inline=1` for inline preview |
-| `/api/files/stream?path=` | GET | Video streaming with HTTP Range 206/416 support |
-| `/api/photos` | GET | Photo list sorted by mtime desc (jpg/png/heic/webp) |
+| `/api/files/download?path=&inline=` | GET | File download with Content-Disposition; `inline=1` for inline preview; 403 for restricted paths over external network |
+| `/api/files/stream?path=` | GET | Video streaming with HTTP Range 206/416 support; 403 for restricted paths over external network |
+| `/api/photos` | GET | Photo list sorted by EXIF DateTimeOriginal desc (jpg/png/heic/heif/webp), EXIF fallback to mtime |
 | `/api/photos/[name]?w=` | GET | Image serving + sharp server-side resize (JPEG quality 80) |
+| `/api/chat` | POST | Streaming chat proxy to local Ollama; builds system prompt from `nas-knowledge.ts`, NDJSON→plain-text stream, per-IP rate limit (10/min) |
 
 ---
 
@@ -84,41 +95,77 @@ nas-portal/
 
 | Component | Description |
 |-----------|-------------|
-| `TopNav` | Sticky navbar, desktop links with active highlighting, mobile slide-in drawer (Escape to close) |
+| `TopNav` | Sticky navbar, desktop links with active highlighting; mobile floating compass button + radial menu (items arc from 12 to 6 o'clock) |
 | `FileIcon` | 44×44 file icon — image thumbnails via sharp, type-specific lucide icons with tinted backgrounds |
 | `FileRow` | File row with FileIcon, formatted size, action link (Play/Preview/Download), inline video player expand |
+| `FilesBrowser` | Client-side file listing with loading/error/empty states, back navigation |
 | `PhotoCarousel` | CSS scroll-snap carousel, 4s auto-play with scroll pause, responsive breakpoint widths, srcset images |
 | `LanguageToggle` / `LanguageProvider` | Chinese/English toggle, localStorage persistence |
+| `MarkdownContent` | react-markdown + remark-gfm renderer, Apple-style styled links/lists/code/headings/tables |
 | `Providers` | Client-side context providers wrapper |
+
+---
+
+## Local AI Chat Architecture
+
+```
+Browser /chat
+   │  POST /api/chat { messages, locale }
+   ▼
+app/api/chat/route.ts         ← Next.js route handler
+   │  buildSystemPrompt(locale) → reads nas-knowledge.ts
+   ▼
+lib/nas-knowledge.ts          ← 11 bilingual NAS facts (files, photos, SMB, remote, copyright, FAQ)
+   │  fetch → http://127.0.0.1:11434/api/chat
+   ▼
+Ollama (qwen3:4b)             ← local model, launchd auto-start, localhost-only
+   │  NDJSON stream
+   ▼
+route.ts → plain-text stream (per-IP rate limit, input validation)
+   ▼
+app/chat/page.tsx             ← streams reply into message bubbles
+   ▼
+components/markdown-content.tsx   ← renders reply as styled markdown
+```
+
+- **Model**: `qwen3:4b` (~2.5GB, Q4_K_M), stored in `~/.ollama/models`
+- **Service**: launchd agent `com.nas.ollama.plist` (`ollama serve`, bound to `127.0.0.1:11434`)
+- **Knowledge**: `lib/nas-knowledge.ts` curates facts; the system prompt instructs the model to answer only from these facts and admit unknowns rather than fabricate
+- **Streaming**: Ollama `/api/chat` NDJSON lines → decoded, buffered across chunk boundaries, forwarded as `text/plain`
+- **Abuse protection**: 10 requests/min per `cf-connecting-ip` (only trusted header; other traffic shares one bucket)
 
 ---
 
 ## Deployment Architecture
 
 ```
-Browser → Port 80
-              │
-          [socat]   (LaunchDaemon)
-              │
+Browser → https://nas.elevenbeans.me
+               │
+          [Cloudflare Tunnel]
+               │
+          Port 80 (socat, LaunchDaemon)
+               │
           Port 3000
-              │
-        [Next.js]   (LaunchAgent, KeepAlive)
-              │
-    ┌─────────┼─────────┐
-    │         │         │
-  API/files           API/photos  API/system/status
-  ├─ thumbnail        │           │
-  ├─ download          │           │
-  ├─ stream            │           │
-  └─ listing           │           │
-    │                  │           │
-    ▼                  ▼           ▼
-/Volumes/NAS-Data/              Shell commands
-  Photos/              df, pgrep, ifconfig
+               │
+        [Next.js]  (LaunchAgent, KeepAlive)
+               │
+    ┌──────────┼──────────────┐
+    │          │              │
+  API/files  API/photos   API/chat
+  ├─ thumbnail │             │
+  ├─ download  │         [Ollama]
+  ├─ stream    │          127.0.0.1:11434
+  └─ listing   │           qwen3:4b
+    │          │              │
+    ▼          ▼              ▼
+/Volumes/NAS-Data/        Shell commands     ~/.ollama/models
+  Photos/                 df, pgrep, ifconfig
   Videos/
   Downloads/
   Backups/
 ```
+
+External-network restrictions: `Movies/` directory (copyright-protected) exposes only name+size and blocks preview/play/download; full access requires the home network (same WiFi). Detection via `lib/network-utils.ts` (Host header check).
 
 ## Dev & Deploy
 
@@ -144,3 +191,6 @@ Browser → Port 80
 | TypeScript | Type safety |
 | lucide-react | Icon library |
 | sharp | Server-side image resizing |
+| react-markdown + remark-gfm | Markdown rendering for chat replies |
+| exifr | EXIF capture-date extraction for photo timeline |
+| Ollama | Local open-source LLM service (qwen3:4b) |
