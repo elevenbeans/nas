@@ -73,3 +73,10 @@
 - **Markdown rendering** — assistant replies rendered as styled markdown (`react-markdown` + GFM), with Apple-style links, lists, code blocks, tables, and headings
 - **Abuse protection** — per-IP rate limit (10 msg/min via `cf-connecting-ip`) on the public `/api/chat` endpoint
 - **Robustness fixes** — decoder tail flush, runtime message validation, IME-safe Enter submit, status-aware offline error, 2000-char input cap, mobile radial menu overflow fix with the 6th nav item
+
+## v3.6 (2026-08-13)
+
+- **Architecture & technical Q&A** — knowledge base expanded with deployment chain (Cloudflare Tunnel → socat 80 → Next.js 3000, launchd services), path security, HEIC conversion (sips + sharp), HTTP Range streaming, exifr timeline, and tech stack facts
+- **General-purpose chat** — system prompt relaxed so the assistant also answers non-NAS questions (translation, writing, common knowledge, casual chat) while keeping NAS facts grounded and fabrication-free
+- **Live tool calling** — assistant can fetch real-time data via three tools: `get_system_status` (storage/SMB/network), `list_files` (directory listing with path safety), and `fetch_url` (summarize public https pages)
+- **SSRF protection** — `fetch_url` allows only https, blocks private/loopback IPs via DNS resolution, caps response at 20KB
