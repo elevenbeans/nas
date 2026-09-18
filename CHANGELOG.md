@@ -95,3 +95,13 @@
 - **CORS for the personal site** — `lib/cors.ts` origin allowlist (`elevenbeans.me`, `www`, and local dev ports) with a per-request `corsHeaders()` helper and `OPTIONS` preflight; `next.config.ts` emits the matching `Access-Control-Allow-Origin` headers on `/api/profile-chat`
 - **Shared rate limiter** — the per-IP limiter (10 msg/min via `cf-connecting-ip`) is extracted from `/api/chat` into `lib/rate-limit.ts` as `isRateLimited()` and reused by both chat endpoints
 - **Visitor context** — optional `profile` payload (visitor name ≤60 chars, up to 6 preferences) personalizes the system prompt without leaking internal implementation details
+
+## v3.7.1 (2026-09-18)
+
+- **Project-doc grounding** — `/api/profile-chat` now answers project questions from the projects' own docs instead of guessing: `lib/project-docs.ts` maps fixed project keys (`myprofile`, `nas`, `blog`, `game-of-life`) to allowlisted files (`nas` = `README.md` + `nas-portal-overview.md`). ASCII-art/diagram lines are stripped and injection is length-capped, and a read-only `get_project_doc` tool covers indirect, pronoun, and multi-turn references. Docs are read from disk on every request (no cache, no index), so editing a doc is reflected on the next question.
+- **Deterministic pre-fetch** — the route scans recent messages for project keywords and injects the matching docs directly into the system prompt, so grounding does not depend on the model choosing to call a tool; when docs are pre-injected, tools are disabled for that request to avoid tool loops.
+- **Live-state guard** — questions about live NAS data (storage usage, current file list, service status, IP) are refused with a pointer to the NAS portal assistant (`/chat`); the assistant must not invent numbers or listings.
+- **Bounded generation** — `temperature 0.3`, `num_ctx 8192`, `num_predict 512` keep project answers concise and latency low (~5–7s).
+- **Model switch** — both `/api/chat` and `/api/profile-chat` now default to the faster non-thinking `qwen2.5:3b` (`qwen3:4b` removed from the host); `PROFILE_OLLAMA_MODEL` can point the profile endpoint at a different model than `/api/chat`.
+- **Answer-language lock** — replies are forced to the requested locale (English prompt → English answer, Chinese prompt → Chinese answer).
+- **Hardening** — non-object JSON bodies return 400 instead of 500; connection-level upstream failures now stream `[服务暂时不可用]` instead of an empty 500; profile knowledge uses the corrected 驯化师 wording.
