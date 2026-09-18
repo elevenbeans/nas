@@ -80,7 +80,7 @@ nas-portal/
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/system/status` | GET | Storage usage (`df -H`), network IP (`ifconfig en0`), SMB service |
+| `/api/system/status` | GET | Storage usage (`df -H`), network IP (active interface), SMB service |
 | `/api/files?path=` | GET | Directory listing with path traversal protection, returns mimeType per entry; Movies/ folder restricted over external network (name+size only) |
 | `/api/files/thumbnail?path=` | GET | 200×200 JPEG thumbnail via sharp (fit cover) |
 | `/api/files/download?path=&inline=` | GET | File download with Content-Disposition; `inline=1` for inline preview; 403 for restricted paths over external network |

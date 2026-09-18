@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readFile } from "fs/promises";
 import sharp from "sharp";
 import { resolveSafePath } from "@/lib/api-utils";
 import { getFileCategory } from "@/lib/file-types";
 import { isExternalRequest, isMoviePath } from "@/lib/network-utils";
+import { heicToJpeg, isHeicPath } from "@/lib/heic";
 
 export async function GET(req: NextRequest) {
   const filePath = req.nextUrl.searchParams.get("path");
@@ -21,7 +23,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Not an image" }, { status: 404 });
   }
   try {
-    const resized = await sharp(fullPath)
+    const input = isHeicPath(filePath) ? await heicToJpeg(await readFile(fullPath)) : fullPath;
+    const resized = await sharp(input)
       .resize(200, 200, { fit: "cover", position: "centre" })
       .jpeg({ quality: 80 })
       .toBuffer();

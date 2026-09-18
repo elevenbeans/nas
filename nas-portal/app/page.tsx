@@ -71,13 +71,13 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <div>
               <div className="font-heading text-xl font-bold tracking-tight">
-                {status?.network.ip ?? "192.168.1.46"}
+                {status?.network.ip || "—"}
               </div>
               <div className="text-[13px] text-green-600">{t.connected}</div>
             </div>
             <div className="text-right">
               <div className="text-sm text-apple-muted">Mac Mini</div>
-              <div className="text-[13px] text-apple-muted">{status?.network.interface ?? "en0"}</div>
+              <div className="text-[13px] text-apple-muted">{status?.network.interface || "—"}</div>
             </div>
           </div>
         </div>

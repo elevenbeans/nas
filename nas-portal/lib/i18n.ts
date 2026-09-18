@@ -133,7 +133,7 @@ export const locales: Record<Locale, {
           title: "文件管理",
           items: [
             "通过「文件」页面可以浏览 NAS 中的所有文件。",
-            "在电脑/手机上打开 Finder（Mac）或「此电脑」（Windows），在地址栏输入 smb://192.168.1.xx 即可像本地硬盘一样访问。",
+            "在电脑/手机上打开 Finder（Mac）或「此电脑」（Windows），在地址栏输入 smb://elevenbeansdemac-mini.local 即可像本地硬盘一样访问（当前地址以概览页显示为准）。",
             "拖拽文件到共享文件夹即可上传，删除操作不可恢复，请谨慎操作。",
           ],
         },
@@ -148,7 +148,7 @@ export const locales: Record<Locale, {
         {
           title: "连接方式",
           items: [
-            "局域网：同一 WiFi 下的设备可直接通过 \\\\nas 或 smb://nas.local 连接。",
+            "局域网：同一 WiFi 下的设备可直接通过 \\\\elevenbeansdemac-mini.local 或 smb://elevenbeansdemac-mini.local 连接（当前地址以概览页显示为准）。",
             "推荐使用 SMB 协议映射网络驱动器，体验最接近本地硬盘。",
           ],
         },
@@ -243,7 +243,7 @@ export const locales: Record<Locale, {
           title: "File Management",
           items: [
             "Use the Files page to browse, upload, and download all files on your NAS.",
-            "On your computer, open Finder (Mac) or This PC (Windows) and enter smb://nas.local to access files like a local drive.",
+            "On your computer, open Finder (Mac) or This PC (Windows) and enter smb://elevenbeansdemac-mini.local to access files like a local drive (the current IP is shown on the dashboard).",
             "Drag and drop files to upload. Deleted files cannot be recovered, so proceed with caution.",
           ],
         },
@@ -258,7 +258,7 @@ export const locales: Record<Locale, {
         {
           title: "Connection Methods",
           items: [
-            "Local network: Devices on the same WiFi can connect via \\\\nas or smb://nas.local.",
+            "Local network: Devices on the same WiFi can connect via \\\\elevenbeansdemac-mini.local or smb://elevenbeansdemac-mini.local (the current IP is shown on the dashboard).",
             "Remote access: Use Tailscale to securely access your NAS from anywhere (requires setup in Settings).",
             "We recommend mapping a network drive via SMB for the most native experience.",
           ],

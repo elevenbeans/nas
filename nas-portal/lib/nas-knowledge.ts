@@ -27,8 +27,8 @@ const FACTS: NasFact[] = [
     en: "Photos page: photos are auto-organized into a monthly timeline by EXIF capture date; supports JPEG/HEIC/PNG/RAW; HEIC is auto-converted for preview.",
   },
   {
-    zh: "SMB 访问：同一 WiFi 下，在 Finder (Mac) 或「此电脑」(Windows) 地址栏输入 smb://192.168.1.46 或 smb://nas.local 即可像本地硬盘一样访问。删除不可恢复，请谨慎。",
-    en: "SMB access: on the same WiFi, type smb://192.168.1.46 or smb://nas.local into Finder (Mac) or This PC (Windows) to access files like a local drive. Deleted files cannot be recovered.",
+    zh: "SMB 访问：同一 WiFi 下，在 Finder (Mac) 或「此电脑」(Windows) 地址栏输入 smb://elevenbeansdemac-mini.local 即可像本地硬盘一样访问（当前 IP 以概览页显示为准）。删除不可恢复，请谨慎。",
+    en: "SMB access: on the same WiFi, type smb://elevenbeansdemac-mini.local into Finder (Mac) or This PC (Windows) to access files like a local drive (the current IP is shown on the dashboard). Deleted files cannot be recovered.",
   },
   {
     zh: "远程访问：通过 Cloudflare Tunnel 在 https://nas.elevenbeans.me 访问；也可用 Tailscale 从任何地方安全访问。",

@@ -1,6 +1,6 @@
 export type SystemStatus = {
   storage: { used: string; total: string; percent: number };
-  services: { smb: boolean; jellyfin: boolean };
+  services: { smb: boolean; jellyfin?: boolean };
   network: { ip: string; hostname: string; interface: string };
 };
 

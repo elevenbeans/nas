@@ -80,3 +80,11 @@
 - **General-purpose chat** — system prompt relaxed so the assistant also answers non-NAS questions (translation, writing, common knowledge, casual chat) while keeping NAS facts grounded and fabrication-free
 - **Live tool calling** — assistant can fetch real-time data via three tools: `get_system_status` (storage/SMB/network), `list_files` (directory listing with path safety), and `fetch_url` (summarize public https pages)
 - **SSRF protection** — `fetch_url` allows only https, blocks private/loopback IPs via DNS resolution, caps response at 20KB
+
+## v3.6.1 (2026-09-18)
+
+- **SMB status accuracy** — service check now detects the port-445 listener instead of the `samba-dot-org-smbd` process; the shared `getSystemStatus` powers both the dashboard API and the chat tool
+- **Dynamic NAS address** — network status reports the active uplink's IP (default-route interface, preferring physical `en*`/`bridge*` on the private LAN) instead of assuming `en0` / `192.168.1.46`, so the dashboard no longer shows a stale address after wired↔Wi-Fi DHCP changes
+- **Stable SMB instructions** — guide and assistant knowledge now use the Bonjour name `smb://elevenbeansdemac-mini.local` (with a "current IP on dashboard" note) so client setup survives IP changes
+- **Photo timeline crash fix** — a malformed EXIF `DateTimeOriginal` (exifr returned a raw byte string) no longer throws and blanks `/api/photos`; invalid dates fall back to file mtime and per-file failures are isolated with real errors logged
+- **HEIC thumbnails in Files** — `/api/files/thumbnail` converts HEIC/HEIF via macOS `sips` (shared `lib/heic.ts`) before resizing, fixing the 500s that broke thumbnails for every HEIC photo in the file browser
