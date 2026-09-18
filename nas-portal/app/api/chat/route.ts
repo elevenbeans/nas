@@ -53,8 +53,8 @@ async function runChatLoop(
           options: { temperature: 0.6 },
         }),
       });
-    } catch (err) {
-      controller.error(err);
+    } catch {
+      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
       return;
     }
 
@@ -103,8 +103,8 @@ async function runChatLoop(
           // ignore malformed final line
         }
       }
-    } catch (err) {
-      controller.error(err);
+    } catch {
+      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
       return;
     } finally {
       reader.releaseLock();
@@ -148,6 +148,9 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: "invalid JSON" }), { status: 400 });
+  }
+  if (!body || typeof body !== "object") {
+    return new Response(JSON.stringify({ error: "invalid body" }), { status: 400 });
   }
 
   const messages = body.messages ?? [];
