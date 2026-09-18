@@ -88,3 +88,10 @@
 - **Stable SMB instructions** — guide and assistant knowledge now use the Bonjour name `smb://elevenbeansdemac-mini.local` (with a "current IP on dashboard" note) so client setup survives IP changes
 - **Photo timeline crash fix** — a malformed EXIF `DateTimeOriginal` (exifr returned a raw byte string) no longer throws and blanks `/api/photos`; invalid dates fall back to file mtime and per-file failures are isolated with real errors logged
 - **HEIC thumbnails in Files** — `/api/files/thumbnail` converts HEIC/HEIF via macOS `sips` (shared `lib/heic.ts`) before resizing, fixing the 500s that broke thumbnails for every HEIC photo in the file browser
+
+## v3.7 (2026-09-18)
+
+- **Profile AI assistant** — new `/api/profile-chat` streaming endpoint that chats as elevenbeans' site avatar, grounded in curated personal facts (`lib/profile-knowledge.ts`) with bilingual zh/en answers; input is validated (JSON + message shape), the final message is capped at 2000 chars, and history is trimmed to the last 12 turns
+- **CORS for the personal site** — `lib/cors.ts` origin allowlist (`elevenbeans.me`, `www`, and local dev ports) with a per-request `corsHeaders()` helper and `OPTIONS` preflight; `next.config.ts` emits the matching `Access-Control-Allow-Origin` headers on `/api/profile-chat`
+- **Shared rate limiter** — the per-IP limiter (10 msg/min via `cf-connecting-ip`) is extracted from `/api/chat` into `lib/rate-limit.ts` as `isRateLimited()` and reused by both chat endpoints
+- **Visitor context** — optional `profile` payload (visitor name ≤60 chars, up to 6 preferences) personalizes the system prompt without leaking internal implementation details
