@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { ALLOWED_ORIGINS } from "./lib/cors";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   async headers() {
     return [
       {
