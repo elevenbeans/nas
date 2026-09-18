@@ -16,7 +16,7 @@ const FACTS: ProfileFact[] = [
     en: "Name/handle: Elevenbeans.",
   },
   {
-    zh: "职位：软件工程师（AI 驯兽师）。",
+    zh: "职位：软件工程师（AI 驯化师）。",
     en: "Role: Software Engineer (AI Wrangler).",
   },
   {
