@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { buildSystemPrompt } from "@/lib/nas-knowledge";
 import { NAS_TOOLS, executeNasTool } from "@/lib/nas-tools";
+import { isRateLimited } from "@/lib/rate-limit";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen3:4b";
@@ -14,36 +15,6 @@ interface ClientMessage {
 interface ToolCall {
   id?: string;
   function: { name: string; arguments: unknown };
-}
-
-const RATE_WINDOW_MS = 60_000;
-const RATE_MAX = 10;
-const buckets = new Map<string, number[]>();
-
-function getClientIp(req: NextRequest): string {
-  const cf = req.headers.get("cf-connecting-ip");
-  if (cf) return cf;
-  return "unknown";
-}
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const cutoff = now - RATE_WINDOW_MS;
-  if (buckets.size > 500) {
-    for (const [k, times] of buckets) {
-      const fresh = times.filter((t) => t > cutoff);
-      if (fresh.length === 0) buckets.delete(k);
-      else buckets.set(k, fresh);
-    }
-  }
-  const times = (buckets.get(ip) ?? []).filter((t) => t > cutoff);
-  if (times.length >= RATE_MAX) {
-    buckets.set(ip, times);
-    return true;
-  }
-  times.push(now);
-  buckets.set(ip, times);
-  return false;
 }
 
 interface OllamaLine {
@@ -168,7 +139,7 @@ async function runChatLoop(
 }
 
 export async function POST(req: NextRequest) {
-  if (rateLimited(getClientIp(req))) {
+  if (isRateLimited(req)) {
     return new Response(JSON.stringify({ error: "rate limited" }), { status: 429 });
   }
 
