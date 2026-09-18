@@ -2,22 +2,34 @@ import { NextRequest } from "next/server";
 import { buildProfileSystemPrompt, type ProfileContext } from "@/lib/profile-knowledge";
 import { isRateLimited } from "@/lib/rate-limit";
 import { corsHeaders } from "@/lib/cors";
+import { PROJECT_DOC_TOOLS, executeProjectTool } from "@/lib/project-docs";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const OLLAMA_MODEL =
   process.env.PROFILE_OLLAMA_MODEL || process.env.OLLAMA_MODEL || "qwen2.5:3b";
+const MAX_TOOL_ROUNDS = 3;
 
 interface ClientMessage {
   role: "user" | "assistant";
   content: string;
 }
 
+interface ToolCall {
+  id?: string;
+  function: { name: string; arguments: unknown };
+}
+
 interface OllamaLine {
   message?: {
     content?: string;
+    tool_calls?: ToolCall[];
   };
   done?: boolean;
   error?: string;
+}
+
+function parseToolCalls(json: OllamaLine): ToolCall[] {
+  return json.message?.tool_calls ?? [];
 }
 
 function sanitizeProfile(raw: unknown): ProfileContext | undefined {
@@ -50,68 +62,103 @@ async function runProfileChat(
 ) {
   const messages: any[] = [{ role: "system", content: systemPrompt }, ...history];
 
-  let upstream: Response;
-  try {
-    upstream = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: OLLAMA_MODEL,
-        stream: true,
-        messages,
-        options: { temperature: 0.6 },
-      }),
-    });
-  } catch {
-    controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
-    return;
-  }
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    let upstream: Response;
+    try {
+      upstream = await fetch(`${OLLAMA_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: OLLAMA_MODEL,
+          stream: true,
+          messages,
+          tools: PROJECT_DOC_TOOLS,
+          options: { temperature: 0.6 },
+        }),
+      });
+    } catch {
+      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
+      return;
+    }
 
-  if (!upstream.ok || !upstream.body) {
-    controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
-    return;
-  }
+    if (!upstream.ok || !upstream.body) {
+      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
+      return;
+    }
 
-  const reader = upstream.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
+    const reader = upstream.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let toolCalls: ToolCall[] = [];
 
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith("{")) continue;
-        let json: OllamaLine;
-        try {
-          json = JSON.parse(trimmed);
-        } catch {
-          continue;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("{")) continue;
+          let json: OllamaLine;
+          try {
+            json = JSON.parse(trimmed);
+          } catch {
+            continue;
+          }
+          const calls = parseToolCalls(json);
+          if (calls.length > 0) toolCalls = toolCalls.concat(calls);
+          const content = json.message?.content ?? "";
+          if (content) controller.enqueue(encoder.encode(content));
         }
-        const content = json.message?.content ?? "";
-        if (content) controller.enqueue(encoder.encode(content));
       }
-    }
-    buffer += decoder.decode();
-    const trimmed = buffer.trim();
-    if (trimmed.startsWith("{")) {
-      try {
-        const json = JSON.parse(trimmed) as OllamaLine;
-        const content = json.message?.content ?? "";
-        if (content) controller.enqueue(encoder.encode(content));
-      } catch {
-        // ignore malformed final line
+      buffer += decoder.decode();
+      const trimmed = buffer.trim();
+      if (trimmed.startsWith("{")) {
+        try {
+          const json = JSON.parse(trimmed) as OllamaLine;
+          const calls = parseToolCalls(json);
+          if (calls.length > 0) toolCalls = toolCalls.concat(calls);
+          const content = json.message?.content ?? "";
+          if (content) controller.enqueue(encoder.encode(content));
+        } catch {
+          // ignore malformed final line
+        }
       }
+    } catch {
+      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
+      return;
+    } finally {
+      reader.releaseLock();
     }
-  } catch {
-    controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
-    return;
-  } finally {
-    reader.releaseLock();
+
+    if (toolCalls.length === 0) return;
+
+    messages.push({
+      role: "assistant",
+      content: "",
+      tool_calls: toolCalls.map((c) => ({
+        id: c.id,
+        type: "function",
+        function: { name: c.function.name, arguments: c.function.arguments },
+      })),
+    });
+
+    for (const call of toolCalls) {
+      const args =
+        typeof call.function.arguments === "string"
+          ? (() => {
+              try {
+                return JSON.parse(call.function.arguments as string);
+              } catch {
+                return {};
+              }
+            })()
+          : call.function.arguments ?? {};
+      const result = executeProjectTool(call.function.name, args);
+      messages.push({ role: "tool", content: result });
+    }
   }
 }
 
