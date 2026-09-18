@@ -88,6 +88,12 @@ export function buildProfileSystemPrompt(locale: Locale, profile?: ProfileContex
     );
   }
 
+  const languageLock =
+    locale === "zh"
+      ? "重要：请只使用中文回复，无论上文使用何种语言。"
+      : "IMPORTANT: Respond only in English, regardless of the language of any text above.";
+
   const base = `${header}\n${facts}`;
-  return profileLines.length > 0 ? `${base}\n${profileLines.join("\n")}` : base;
+  const body = profileLines.length > 0 ? `${base}\n${profileLines.join("\n")}` : base;
+  return `${body}\n\n${languageLock}`;
 }
