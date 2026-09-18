@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { buildProfileSystemPrompt, type ProfileContext } from "@/lib/profile-knowledge";
 import { isRateLimited } from "@/lib/rate-limit";
 import { corsHeaders } from "@/lib/cors";
-import { PROJECT_DOC_TOOLS, executeProjectTool } from "@/lib/project-docs";
+import { PROJECT_DOC_TOOLS, executeProjectTool, matchProjectDocs, getProjectDocContext } from "@/lib/project-docs";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const OLLAMA_MODEL =
@@ -57,10 +57,11 @@ function sanitizeProfile(raw: unknown): ProfileContext | undefined {
 async function runProfileChat(
   controller: ReadableStreamDefaultController,
   encoder: TextEncoder,
-  systemPrompt: string,
-  history: { role: string; content: string }[]
+  systemMessages: { role: string; content: string }[],
+  history: { role: string; content: string }[],
+  tools: unknown[] | undefined
 ) {
-  const messages: any[] = [{ role: "system", content: systemPrompt }, ...history];
+  const messages: any[] = [...systemMessages, ...history];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     let upstream: Response;
@@ -72,8 +73,8 @@ async function runProfileChat(
           model: OLLAMA_MODEL,
           stream: true,
           messages,
-          tools: PROJECT_DOC_TOOLS,
-          options: { temperature: 0.6 },
+          ...(tools ? { tools } : {}),
+          options: { temperature: 0.3, num_ctx: 8192, num_predict: 512 },
         }),
       });
     } catch {
@@ -212,11 +213,42 @@ export async function POST(req: NextRequest) {
     content: m.content.slice(0, 4000),
   }));
 
+  const systemMessages: { role: string; content: string }[] = [
+    { role: "system", content: systemPrompt },
+  ];
+
+  const recentTexts = history.slice(-4).map((m) => m.content);
+  const matchedProjects = matchProjectDocs(...recentTexts);
+  const docContext = getProjectDocContext(matchedProjects);
+  if (docContext) {
+    systemMessages.push({
+      role: "system",
+      content:
+        (locale === "zh"
+          ? "相关项目文档已直接提供如下。请只依据它、用不超过 5 句话回答；不要复述或粘贴文档内容，不要调用任何工具。\n\n"
+          : "The relevant project documentation is provided directly below. Answer ONLY from it, in at most 5 sentences; do not repeat or paste the document, and do NOT call any tool.\n\n") +
+        docContext,
+    });
+  }
+  const tools = docContext ? undefined : PROJECT_DOC_TOOLS;
+
+  const LIVE_STATE_RE =
+    /使用率|剩余空间|多少空间|可用空间|根目录.*(有|列表)|文件列表|当前(文件|状态|使用|列表)|现在(文件|状态|使用|列表)|实时|service status|storage usage|disk usage|how (much|full)|currently|right now|list (the )?files|current (files|status|usage)/i;
+  if (LIVE_STATE_RE.test(last)) {
+    systemMessages.push({
+      role: "system",
+      content:
+        locale === "zh"
+          ? "规则（不要照抄本句）：用户若询问存储使用率、当前文件、服务状态、IP 等实时信息，请用你自己的话简短说明你无法访问 NAS 的实时数据，并建议使用 NAS 门户自带的助手 https://nas.elevenbeans.me/chat 。"
+          : "Rule (do not quote this sentence): if the user asks for live data such as storage usage, current files, service status, or IP, briefly say in your own words that you cannot access the NAS's live data and suggest the NAS portal's own assistant at https://nas.elevenbeans.me/chat .",
+    });
+  }
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
-      await runProfileChat(controller, encoder, systemPrompt, history);
+      await runProfileChat(controller, encoder, systemMessages, history, tools);
       controller.close();
     },
   });
