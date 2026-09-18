@@ -42,7 +42,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 │               │       │ Ollama      │       │               │
 │               │       │ 127.0.0.1   │       │               │
 │               │       │ 11434       │       │               │
-│               │       │ qwen3:4b    │       │               │
+│               │       │ qwen2.5:3b    │       │               │
 │               │       │ chat only   │       │               │
 │               │       └─────────────┘       │               │
 │               │                             │               │
@@ -67,7 +67,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 | Styling | Tailwind CSS v4 (`@theme` tokens) |
 | Icons | lucide-react |
 | Image Processing | sharp (server-side resize, `?w=` param, UA-aware mobile compress) |
-| Local AI | Ollama (qwen3:4b) + react-markdown + remark-gfm |
+| Local AI | Ollama (qwen2.5:3b) + react-markdown + remark-gfm |
 | EXIF | exifr (photo timeline capture-date) |
 | Font | System font stack (`-apple-system, SF Pro Text, Segoe UI, ...`) |
 | Layout | `max-w-[920px]` centered container, mobile floating compass nav |
@@ -83,7 +83,7 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 - **Font:** system font stack — zero external requests, matches Apple China feel
 - **Photo serving:** custom API route with sharp — no Immich/PhotoPrism
 - **Movies access control:** `Movies/` is restricted on external network (Cloudflare Tunnel) — only name+size visible, no preview/download/stream; internal LAN retains full playback via Host-header detection (`lib/network-utils.ts`)
-- **Local AI chat:** `/chat` page answers NAS usage questions via a local Ollama `qwen3:4b` model — no cloud dependency, data never leaves the NAS; knowledge-grounded via `lib/nas-knowledge.ts`, streaming replies, per-IP rate limit on the public endpoint
+- **Local AI chat:** `/chat` page answers NAS usage questions via a local Ollama `qwen2.5:3b` model — no cloud dependency, data never leaves the NAS; knowledge-grounded via `lib/nas-knowledge.ts`, streaming replies, per-IP rate limit on the public endpoint
 
 
 ## NAS Portal

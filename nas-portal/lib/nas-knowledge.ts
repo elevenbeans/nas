@@ -87,8 +87,8 @@ const FACTS: NasFact[] = [
     en: "Network detection: lib/network-utils.ts inspects the Host header to tell external from internal traffic; over the external network the Movies folder exposes only name and size, and preview/download/stream endpoints return 403.",
   },
   {
-    zh: "技术栈：Next.js 15 App Router + Tailwind v4 + TypeScript，图片 sharp + exifr，Chat 回答用 react-markdown 渲染，图标 lucide-react；本地 AI 用 Ollama qwen3:4b，模型文件在 ~/.ollama/models。",
-    en: "Tech stack: Next.js 15 App Router + Tailwind v4 + TypeScript; sharp and exifr for images; react-markdown renders chat replies; lucide-react icons; local AI via Ollama qwen3:4b with model files in ~/.ollama/models.",
+    zh: "技术栈：Next.js 15 App Router + Tailwind v4 + TypeScript，图片 sharp + exifr，Chat 回答用 react-markdown 渲染，图标 lucide-react；本地 AI 用 Ollama qwen2.5:3b，模型文件在 ~/.ollama/models。",
+    en: "Tech stack: Next.js 15 App Router + Tailwind v4 + TypeScript; sharp and exifr for images; react-markdown renders chat replies; lucide-react icons; local AI via Ollama qwen2.5:3b with model files in ~/.ollama/models.",
   },
 ];
 

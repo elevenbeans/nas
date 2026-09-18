@@ -118,7 +118,7 @@ app/api/chat/route.ts         ← Next.js route handler
 lib/nas-knowledge.ts          ← 11 bilingual NAS facts (files, photos, SMB, remote, copyright, FAQ)
    │  fetch → http://127.0.0.1:11434/api/chat
    ▼
-Ollama (qwen3:4b)             ← local model, launchd auto-start, localhost-only
+Ollama (qwen2.5:3b)             ← local model, launchd auto-start, localhost-only
    │  NDJSON stream
    ▼
 route.ts → plain-text stream (per-IP rate limit, input validation)
@@ -128,7 +128,7 @@ app/chat/page.tsx             ← streams reply into message bubbles
 components/markdown-content.tsx   ← renders reply as styled markdown
 ```
 
-- **Model**: `qwen3:4b` (~2.5GB, Q4_K_M), stored in `~/.ollama/models`
+- **Model**: `qwen2.5:3b` (~2.5GB, Q4_K_M), stored in `~/.ollama/models`
 - **Service**: launchd agent `com.nas.ollama.plist` (`ollama serve`, bound to `127.0.0.1:11434`)
 - **Knowledge**: `lib/nas-knowledge.ts` curates facts; the system prompt instructs the model to answer only from these facts and admit unknowns rather than fabricate
 - **Streaming**: Ollama `/api/chat` NDJSON lines → decoded, buffered across chunk boundaries, forwarded as `text/plain`
@@ -155,7 +155,7 @@ Browser → https://nas.elevenbeans.me
   ├─ thumbnail │             │
   ├─ download  │         [Ollama]
   ├─ stream    │          127.0.0.1:11434
-  └─ listing   │           qwen3:4b
+  └─ listing   │           qwen2.5:3b
     │          │              │
     ▼          ▼              ▼
 /Volumes/NAS-Data/        Shell commands     ~/.ollama/models
@@ -193,4 +193,4 @@ External-network restrictions: `Movies/` directory (copyright-protected) exposes
 | sharp | Server-side image resizing |
 | react-markdown + remark-gfm | Markdown rendering for chat replies |
 | exifr | EXIF capture-date extraction for photo timeline |
-| Ollama | Local open-source LLM service (qwen3:4b) |
+| Ollama | Local open-source LLM service (qwen2.5:3b) |

@@ -4,7 +4,7 @@ import { NAS_TOOLS, executeNasTool } from "@/lib/nas-tools";
 import { isRateLimited } from "@/lib/rate-limit";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen3:4b";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:3b";
 const MAX_TOOL_ROUNDS = 3;
 
 interface ClientMessage {
