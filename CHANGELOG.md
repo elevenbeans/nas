@@ -105,3 +105,7 @@
 - **Model switch** — both `/api/chat` and `/api/profile-chat` now default to the faster non-thinking `qwen2.5:3b` (`qwen3:4b` removed from the host); `PROFILE_OLLAMA_MODEL` can point the profile endpoint at a different model than `/api/chat`.
 - **Answer-language lock** — replies are forced to the requested locale (English prompt → English answer, Chinese prompt → Chinese answer).
 - **Hardening** — non-object JSON bodies return 400 instead of 500; connection-level upstream failures now stream `[服务暂时不可用]` instead of an empty 500; profile knowledge uses the corrected 驯化师 wording.
+
+## v3.7.2 (2026-10-01)
+
+- **WeChat CORS fix** — `/api/profile-chat` now returns `Access-Control-Allow-Origin: *` from the shared `corsHeaders()` helper instead of echoing an allowlisted origin. WeChat's in-app browser (iOS WKWebView) sends an opaque/absent `Origin` on cross-origin fetches, so the origin-echoing allowlist rejected the preflight and the personal-site assistant failed instantly with "Something went wrong". The endpoint is public, unauthenticated, and cookie-less, so the allowlist was never a security boundary; the per-IP rate limit and read-only tool surface remain the real constraints. The origin-conditional headers in `next.config.ts` were removed to avoid conflicting duplicate `Access-Control-Allow-Origin` values.
