@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "sync": "NEXT_DIST_DIR=.next-build next build && { launchctl bootout gui/$(id -u)/com.nas.portal 2>/dev/null; rm -rf .next && mv .next-build .next && { source .env.local 2>/dev/null; curl -sf -X POST \"https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache\" -H \"Authorization: Bearer $CF_API_TOKEN\" -H \"Content-Type: application/json\" --data '{\"purge_everything\":true}' && echo 'CF cache purged' || echo 'CF purge skipped'; } && { launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.nas.portal.plist 2>/dev/null || launchctl load ~/Library/LaunchAgents/com.nas.portal.plist; }; }",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node --experimental-strip-types --test lib/cors.test.ts"
   },
   "dependencies": {
     "exifr": "^7.1.3",
