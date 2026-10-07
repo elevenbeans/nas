@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { buildSystemPrompt } from "@/lib/nas-knowledge";
 import { NAS_TOOLS, executeNasTool } from "@/lib/nas-tools";
 import { isRateLimited } from "@/lib/rate-limit";
+import { corsHeaders, isRequestAllowed } from "@/lib/cors";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:3b";
@@ -139,18 +140,39 @@ async function runChatLoop(
 }
 
 export async function POST(req: NextRequest) {
+  if (!isRequestAllowed(req)) {
+    console.warn(
+      "chat: forbidden origin",
+      "origin=" + (req.headers.get("origin") ?? "-"),
+      "referer=" + (req.headers.get("referer") ?? "-")
+    );
+    return new Response(JSON.stringify({ error: "forbidden origin" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    });
+  }
+
   if (isRateLimited(req)) {
-    return new Response(JSON.stringify({ error: "rate limited" }), { status: 429 });
+    return new Response(JSON.stringify({ error: "rate limited" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    });
   }
 
   let body: { messages?: ClientMessage[]; locale?: "zh" | "en" };
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: "invalid JSON" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "invalid JSON" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    });
   }
   if (!body || typeof body !== "object") {
-    return new Response(JSON.stringify({ error: "invalid body" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "invalid body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    });
   }
 
   const messages = body.messages ?? [];
@@ -158,11 +180,17 @@ export async function POST(req: NextRequest) {
     !Array.isArray(messages) ||
     messages.some((m) => typeof m?.role !== "string" || typeof m?.content !== "string")
   ) {
-    return new Response(JSON.stringify({ error: "invalid messages" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "invalid messages" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    });
   }
   const last = messages[messages.length - 1]?.content?.trim();
   if (!last || last.length > 2000) {
-    return new Response(JSON.stringify({ error: "empty or too long message" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "empty or too long message" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    });
   }
 
   const locale = body.locale === "en" ? "en" : "zh";
@@ -186,6 +214,11 @@ export async function POST(req: NextRequest) {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-store",
       "X-Accel-Buffering": "no",
+      ...corsHeaders(req),
     },
   });
+}
+
+export async function OPTIONS(req: NextRequest) {
+  return new Response(null, { status: 204, headers: corsHeaders(req) });
 }
