@@ -119,3 +119,7 @@
 ## v3.7.4 (2026-10-08)
 
 - **Decision examples expanded** — the two approved cases in `lib/profile-knowledge.ts` now carry more public context. The technical decision `EAA Dialog` records that EAA = European Accessibility Act and that the choice was to use HTML native elements over quick JS DOM manipulation (requiring a design-system change) for a more standard, longer-term, compliance-friendly solution. The architecture decision (breaking up a single-point application) states its shareable essence: a combined understanding and judgment of technical architecture and business. Deeper implementation/results stay for a 1-on-1 chat, and the header rule was relaxed from "name only" to "only the facts provided per case".
+
+## v3.7.5 (2026-10-08)
+
+- **AI API origin restriction** — `/api/chat` and `/api/profile-chat` now accept requests only from `*.elevenbeans.me` pages (apex included) and local dev origins (`http://localhost:*`, `http://127.0.0.1:*`). Disallowed callers get a `403` before rate-limit accounting and before any Ollama inference; `Access-Control-Allow-Origin` is echoed only for allowed origins. WeChat's in-app browser (opaque/absent `Origin`) is supported via a `Referer` fallback, so the v3.7.2 fix is preserved. Denied requests log their `origin`/`referer` for troubleshooting.
