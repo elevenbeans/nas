@@ -108,13 +108,18 @@ Applies to both `/api/chat` and `/api/profile-chat`.
   `Access-Control-*` values are emitted.
 - `CHANGELOG.md` — new version entry describing the restriction.
 
-## WeChat risk
+## WeChat resolution (verified post-deploy, 2026-10-08)
 
-The `Referer` fallback assumes WeChat's webview includes a `Referer` on both the
-preflight and the POST. If it does not, WeChat will regress again. Mitigation:
-the denial log records the observed headers; after deploy, open the personal site
-in WeChat and inspect the log. If there is no usable `Referer`, relax null-`Origin`
-`OPTIONS` to permissive and rely solely on the POST gate.
+Production testing confirmed WeChat's WKWebView sends an opaque/absent `Origin`
+and **no** usable `Referer` on the CORS preflight, so the allowlist returns no
+`Access-Control-Allow-Origin`, the preflight fails, and the POST never runs (no
+denial log appears). Header-based rules cannot distinguish WeChat from an
+Origin-less script.
+
+Decision: keep the strict allowlist; do not open an absent-`Origin` bypass. The
+personal-site frontend (`elevenbeans/myprofile`) now detects in-app browsers and
+shows a hint to open the site in a standard browser (Safari/Chrome). The server
+continues to log the observed `origin`/`referer` on every denied request.
 
 ## Verification (local, `npm run dev` port 3001)
 
