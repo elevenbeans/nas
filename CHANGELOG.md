@@ -106,16 +106,16 @@
 - **Answer-language lock** — replies are forced to the requested locale (English prompt → English answer, Chinese prompt → Chinese answer).
 - **Hardening** — non-object JSON bodies return 400 instead of 500; connection-level upstream failures now stream `[服务暂时不可用]` instead of an empty 500; profile knowledge uses the corrected 驯化师 wording.
 
-## v3.7.2 (2026-10-01)
+## v3.7.2 (2026-10-08)
 
 - **WeChat CORS fix** — `/api/profile-chat` now returns `Access-Control-Allow-Origin: *` from the shared `corsHeaders()` helper instead of echoing an allowlisted origin. WeChat's in-app browser (iOS WKWebView) sends an opaque/absent `Origin` on cross-origin fetches, so the origin-echoing allowlist rejected the preflight and the personal-site assistant failed instantly with "Something went wrong". The endpoint is public, unauthenticated, and cookie-less, so the allowlist was never a security boundary; the per-IP rate limit and read-only tool surface remain the real constraints. The origin-conditional headers in `next.config.ts` were removed to avoid conflicting duplicate `Access-Control-Allow-Origin` values.
 
-## v3.7.3 (2026-10-01)
+## v3.7.3 (2026-10-08)
 
 - **Assistant knowledge: career & impact** — `lib/profile-knowledge.ts` now answers interview-style questions about scale (Travix 100K+ daily visits, Trip.com 39 countries/regions), management scope (10–20 reports; owns hiring/performance/on-call; leads cross-team/region/country/subsidiary projects), tech stack (TypeScript/React/React Native/Node.js, prompt engineering + self-hosted LLMs, still hands-on), and the Trip.com → Travix acquisition/transfer (internal transfer, no gap).
 - **Assistant knowledge: HR** — availability (employed, not currently looking), location/remote/travel (Shanghai, open to remote, Amsterdam as business travel ≤22 days/year), languages (native Chinese, working English), and degrees (MSc Xi'an Jiaotong, BSc Sichuan). Identity, phone, and references are explicitly declined online and offered only with a CV.
 - **Assistant guardrails** — added a strict no-fabrication rule and templated verbatim replies for the two approved decision examples (`EAA Dialog`, breaking up a single-point application); a backend/infra boundary that never claims infra ownership or large-scale backend builds; a strict figures rule (quote only 100K+ and 39, never inflate); and a link-discipline rule (never invent URLs).
 
-## v3.7.4 (2026-10-01)
+## v3.7.4 (2026-10-08)
 
 - **Decision examples expanded** — the two approved cases in `lib/profile-knowledge.ts` now carry more public context. The technical decision `EAA Dialog` records that EAA = European Accessibility Act and that the choice was to use HTML native elements over quick JS DOM manipulation (requiring a design-system change) for a more standard, longer-term, compliance-friendly solution. The architecture decision (breaking up a single-point application) states its shareable essence: a combined understanding and judgment of technical architecture and business. Deeper implementation/results stay for a 1-on-1 chat, and the header rule was relaxed from "name only" to "only the facts provided per case".
