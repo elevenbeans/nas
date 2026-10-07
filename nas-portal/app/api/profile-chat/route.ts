@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { buildProfileSystemPrompt, type ProfileContext } from "@/lib/profile-knowledge";
 import { isRateLimited } from "@/lib/rate-limit";
-import { corsHeaders } from "@/lib/cors";
+import { corsHeaders, isRequestAllowed } from "@/lib/cors";
 import { PROJECT_DOC_TOOLS, executeProjectTool, matchProjectDocs, getProjectDocContext } from "@/lib/project-docs";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
@@ -164,6 +164,18 @@ async function runProfileChat(
 }
 
 export async function POST(req: NextRequest) {
+  if (!isRequestAllowed(req)) {
+    console.warn(
+      "profile-chat: forbidden origin",
+      "origin=" + (req.headers.get("origin") ?? "-"),
+      "referer=" + (req.headers.get("referer") ?? "-")
+    );
+    return new Response(JSON.stringify({ error: "forbidden origin" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json", Vary: "Origin" },
+    });
+  }
+
   if (isRateLimited(req)) {
     return new Response(JSON.stringify({ error: "rate limited" }), {
       status: 429,
