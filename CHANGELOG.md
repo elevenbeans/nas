@@ -123,3 +123,7 @@
 ## v3.7.5 (2026-10-08)
 
 - **AI API origin restriction** — `/api/chat` and `/api/profile-chat` now accept requests only from `*.elevenbeans.me` pages (apex included) and local dev origins (`http://localhost:*`, `http://127.0.0.1:*`). Disallowed callers get a `403` before rate-limit accounting and before any Ollama inference; `Access-Control-Allow-Origin` is echoed only for allowed origins. WeChat's in-app browser (opaque/absent `Origin`) is supported via a `Referer` fallback, so the v3.7.2 fix is preserved. Denied requests log their `origin`/`referer` for troubleshooting.
+
+## v3.7.6 (2026-10-08)
+
+- **Stricter tenure & team-size answers** — `lib/profile-knowledge.ts` now gives the assistant an explicit total-experience fact ("10+ years since 2015") and a strict rule that work-experience length ("10+ years since 2015") and team size ("10–20 people") must be quoted verbatim — no rounding, aggregating, or inflating (e.g. never "15 years", "20+ people", or "dozens"). Figures not provided are never estimated; if unsure, the assistant says so.
