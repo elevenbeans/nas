@@ -32,6 +32,19 @@ const EXT_MIME: Record<string, string> = {
 
 const BROWSER_VIDEO = new Set([".mp4", ".webm"]);
 
+/**
+ * MIME types safe to render inline from the file API. Anything else (HTML,
+ * SVG, JS, XML, …) is forced to download so a crafted file cannot execute in
+ * the portal's origin.
+ */
+const INLINE_SAFE_MIME = new Set([
+  "application/pdf",
+  "application/json",
+  "text/plain",
+  "text/markdown",
+  "text/csv",
+]);
+
 export type FileCategory =
   | "image" | "video" | "audio" | "pdf"
   | "document" | "spreadsheet" | "archive"
@@ -65,5 +78,5 @@ export function isVideoBrowserSupported(filename: string): boolean {
 }
 
 export function isPreviewableInBrowser(filename: string): boolean {
-  return getFileCategory(filename) === "pdf" || getFileCategory(filename) === "text" || getFileCategory(filename) === "code";
+  return INLINE_SAFE_MIME.has(getMimeType(filename));
 }

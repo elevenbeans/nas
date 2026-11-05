@@ -8,7 +8,7 @@
     "start": "next start",
     "sync": "bash scripts/deploy.sh",
     "lint": "next lint",
-    "test": "node --experimental-strip-types --test lib/cors.test.ts lib/network-utils.test.ts"
+    "test": "node --experimental-strip-types --test lib/cors.test.ts lib/network-utils.test.ts lib/file-types.test.ts"
   },
   "dependencies": {
     "exifr": "^7.1.3",

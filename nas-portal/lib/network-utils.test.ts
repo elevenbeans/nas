@@ -1,6 +1,47 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isMoviePath, isMovieResolvedPath } from "./network-utils.ts";
+import type { NextRequest } from "next/server";
+import { isExternalRequest, isMoviePath, isMovieResolvedPath } from "./network-utils.ts";
+
+function reqWithHost(host: string): NextRequest {
+  return {
+    headers: { get: (name: string) => (name === "host" ? host : null) },
+  } as unknown as NextRequest;
+}
+
+test("isExternalRequest treats the home network as internal", () => {
+  for (const host of [
+    "localhost",
+    "localhost:3001",
+    "127.0.0.1",
+    "192.168.1.50",
+    "192.168.1.50:3000",
+    "10.0.0.2",
+    "172.16.0.5",
+    "172.31.255.254",
+    "169.254.10.1",
+    "elevenbeansdemac-mini.local",
+    "elevenbeansdemac-mini.local:3000",
+    "[::1]:3000",
+  ]) {
+    assert.equal(isExternalRequest(reqWithHost(host)), false, host);
+  }
+});
+
+test("isExternalRequest keeps public hosts external", () => {
+  for (const host of [
+    "nas.elevenbeans.me",
+    "elevenbeans.me",
+    "172.15.0.5",
+    "172.32.0.1",
+    "192.169.1.1",
+    "10.example.com",
+    "fd.example.com",
+    "",
+  ]) {
+    assert.equal(isExternalRequest(reqWithHost(host)), true, host);
+  }
+});
 
 test("isMoviePath matches the Movies folder itself and anything below it", () => {
   assert.equal(isMoviePath("/Movies"), true);

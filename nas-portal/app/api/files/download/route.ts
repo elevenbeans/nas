@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createReadStream, statSync } from "fs";
 import { BASE, resolveSafePath } from "@/lib/api-utils";
-import { getMimeType } from "@/lib/file-types";
+import { getMimeType, isPreviewableInBrowser } from "@/lib/file-types";
 import { isExternalRequest, isMoviePath, isMovieResolvedPath } from "@/lib/network-utils";
 
 export async function GET(req: NextRequest) {
@@ -24,7 +24,8 @@ export async function GET(req: NextRequest) {
     if (stat.isDirectory()) {
       return NextResponse.json({ error: "Cannot download a directory" }, { status: 400 });
     }
-    const inline = req.nextUrl.searchParams.get("inline") === "1";
+    const wantsInline = req.nextUrl.searchParams.get("inline") === "1";
+    const inline = wantsInline && isPreviewableInBrowser(filePath);
     const mime = getMimeType(filePath);
     const name = filePath.split("/").pop() || "download";
     const encodedName = encodeURIComponent(name);
