@@ -50,8 +50,6 @@ export const locales: Record<Locale, {
     subtitle: string;
     smb: string;
     running: string;
-    tailscale: string;
-    notConfigured: string;
   };
   chat: {
     title: string;
@@ -103,8 +101,6 @@ export const locales: Record<Locale, {
       subtitle: "系统设置",
       smb: "SMB 文件共享",
       running: "运行中",
-      tailscale: "远程访问 (Tailscale)",
-      notConfigured: "未配置",
     },
     chat: {
       title: "NAS 助手",
@@ -213,8 +209,6 @@ export const locales: Record<Locale, {
       subtitle: "System Settings",
       smb: "SMB File Sharing",
       running: "Running",
-      tailscale: "Remote Access (Tailscale)",
-      notConfigured: "Not Configured",
     },
     chat: {
       title: "NAS Assistant",
@@ -259,7 +253,7 @@ export const locales: Record<Locale, {
           title: "Connection Methods",
           items: [
             "Local network: Devices on the same WiFi can connect via \\\\elevenbeansdemac-mini.local or smb://elevenbeansdemac-mini.local (the current IP is shown on the dashboard).",
-            "Remote access: Use Tailscale to securely access your NAS from anywhere (requires setup in Settings).",
+            "Remote access: reach your NAS from anywhere at https://nas.elevenbeans.me (Cloudflare Tunnel).",
             "We recommend mapping a network drive via SMB for the most native experience.",
           ],
         },
@@ -269,7 +263,7 @@ export const locales: Record<Locale, {
             "Q: What if I forget the admin password?\nA: Contact the system administrator to reset it.",
             "Q: How do I expand storage?\nA: Insert a new drive and contact the administrator for configuration.",
             "Q: Can I recover accidentally deleted files?\nA: A trash bin feature is not yet available. Please confirm before deleting.",
-            "Q: Remote access is slow. What can I do?\nA: Check your Tailscale connection status or contact the administrator for network optimization.",
+            "Q: Remote access is slow. What can I do?\nA: Check your network connection or contact the administrator for network optimization.",
           ],
         },
       ],

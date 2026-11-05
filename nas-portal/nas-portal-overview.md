@@ -73,7 +73,7 @@ nas-portal/
 | `/files` | File Browser | Directory tree navigation, image thumbnails, inline video playback, file type icons, download/stream endpoints, path traversal protection, empty-state message |
 | `/photos` | Photo Timeline | Grouped by EXIF capture date into monthly groups, responsive grid, lazy-loaded thumbnails |
 | `/guide` | User Guide | NAS usage guide, FAQ, storage decision table, fully localized |
-| `/settings` | Settings | SMB status, Tailscale status display |
+| `/settings` | Settings | SMB status display |
 | `/chat` | AI Assistant | Streaming chat with a local LLM answering questions about this NAS |
 
 ## API Endpoints

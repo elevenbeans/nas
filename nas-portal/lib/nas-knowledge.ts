@@ -31,8 +31,8 @@ const FACTS: NasFact[] = [
     en: "SMB access: on the same WiFi, type smb://elevenbeansdemac-mini.local into Finder (Mac) or This PC (Windows) to access files like a local drive (the current IP is shown on the dashboard). Deleted files cannot be recovered.",
   },
   {
-    zh: "远程访问：通过 Cloudflare Tunnel 在 https://nas.elevenbeans.me 访问；也可用 Tailscale 从任何地方安全访问。",
-    en: "Remote access: reachable at https://nas.elevenbeans.me via Cloudflare Tunnel; Tailscale is also available for secure access from anywhere.",
+    zh: "远程访问：通过 Cloudflare Tunnel 在 https://nas.elevenbeans.me 访问。",
+    en: "Remote access: reachable at https://nas.elevenbeans.me via Cloudflare Tunnel.",
   },
   {
     zh: "版权限制：Movies 目录（影视文件）在外网访问时只能看到文件名和大小，不能预览/播放/下载；需在内网（同一 WiFi）才能获得完整功能。",

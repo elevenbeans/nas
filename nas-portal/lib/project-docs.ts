@@ -25,7 +25,7 @@ export const PROJECT_DOC_KEYS = Object.keys(PROJECT_DOCS);
  * canonical entries in PROJECT_DOCS; `nas` also covers `nas-portal`.
  */
 export const PROJECT_KEYWORDS: Record<string, RegExp> = {
-  nas: /\bnas\b|nas[- ]?portal|portal|\bsmb\b|tailscale|cloudflare|tunnel|存储|文件|照片|媒体|远程|内网|外网|服务状态/i,
+  nas: /\bnas\b|nas[- ]?portal|portal|\bsmb\b|cloudflare|tunnel|存储|文件|照片|媒体|远程|内网|外网|服务状态/i,
   myprofile: /myprofile|profile|简历|个人主页|elevenbeans\.me/i,
   blog: /\bblog\b|博客/i,
   "game-of-life": /game of life|game-of-life|生命游戏|康威|conway/i,
