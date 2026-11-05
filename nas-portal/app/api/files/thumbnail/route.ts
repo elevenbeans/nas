@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import sharp from "sharp";
-import { resolveSafePath } from "@/lib/api-utils";
+import { BASE, resolveSafePath } from "@/lib/api-utils";
 import { getFileCategory } from "@/lib/file-types";
-import { isExternalRequest, isMoviePath } from "@/lib/network-utils";
+import { isExternalRequest, isMoviePath, isMovieResolvedPath } from "@/lib/network-utils";
 import { heicToJpeg, isHeicPath } from "@/lib/heic";
 
 export async function GET(req: NextRequest) {
@@ -11,12 +11,15 @@ export async function GET(req: NextRequest) {
   if (!filePath) {
     return NextResponse.json({ error: "Missing path" }, { status: 400 });
   }
-  if (isExternalRequest(req) && isMoviePath(filePath)) {
-    return NextResponse.json({ error: "Access denied due to copyright restrictions" }, { status: 403 });
-  }
   const fullPath = resolveSafePath(filePath);
   if (!fullPath) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+  if (
+    isExternalRequest(req) &&
+    (isMoviePath(filePath) || isMovieResolvedPath(BASE, fullPath))
+  ) {
+    return NextResponse.json({ error: "Access denied due to copyright restrictions" }, { status: 403 });
   }
   const category = getFileCategory(filePath);
   if (category !== "image") {

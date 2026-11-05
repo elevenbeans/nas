@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readdirSync, statSync } from "fs";
 import path from "path";
-import { resolveSafePath } from "@/lib/api-utils";
+import { BASE, resolveSafePath } from "@/lib/api-utils";
 import { getMimeType } from "@/lib/file-types";
-import { isExternalRequest, isMoviePath } from "@/lib/network-utils";
+import { isExternalRequest, isMoviePath, isMovieResolvedPath } from "@/lib/network-utils";
 
 export async function GET(req: NextRequest) {
   const dir = req.nextUrl.searchParams.get("path") || "/";
@@ -13,7 +13,9 @@ export async function GET(req: NextRequest) {
   }
   try {
     const entries = readdirSync(fullPath);
-    const restricted = isExternalRequest(req) && isMoviePath(dir);
+    const restricted =
+      isExternalRequest(req) &&
+      (isMoviePath(dir) || isMovieResolvedPath(BASE, fullPath));
     const items = entries
       .map((name) => {
         try {
