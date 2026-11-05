@@ -127,3 +127,9 @@
 ## v3.7.6 (2026-10-08)
 
 - **Stricter tenure & team-size answers** — `lib/profile-knowledge.ts` now gives the assistant an explicit total-experience fact ("10+ years since 2015") and a strict rule that work-experience length ("10+ years since 2015") and team size ("10–20 people") must be quoted verbatim — no rounding, aggregating, or inflating (e.g. never "15 years", "20+ people", or "dozens"). Figures not provided are never estimated; if unsure, the assistant says so.
+
+## v3.7.7 (2026-11-05)
+
+- **Movies restriction bypass fixed** — the external-network check ran on the raw `?path=` string before it was resolved, so `/Photos/../Movies/<file>` slipped past it and streamed (206) over the tunnel. `lib/network-utils.ts` now normalizes dot segments in `isMoviePath()` and adds `isMovieResolvedPath()` for the path after `realpath`, and all four file endpoints (`files`, `download`, `stream`, `thumbnail`) check the resolved path — which also closes the symlink variant. Internal LAN access and non-Movies paths are unchanged.
+- **LAN access to the AI assistant fixed** — browsers send `Origin` on same-origin POSTs, so `http://192.168.x.x` and `http://<name>.local` were rejected with `403` after the v3.7.5 allowlist landed (the assistant only worked over the tunnel). `lib/cors.ts` now accepts an origin/referer whose host equals the request's `Host`, keeping the `*.elevenbeans.me` allowlist and the WeChat `Referer` fallback intact; foreign origins are still rejected before rate limiting and inference.
+- **Tests** — `npm test` now runs `lib/network-utils.test.ts` (dot-segment normalization, prefix collisions, resolved-path checks) alongside the CORS suite, and `lib/cors.test.ts` covers LAN same-origin, `.local`, foreign-origin, and opaque-Origin cases.
