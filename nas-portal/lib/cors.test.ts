@@ -50,6 +50,42 @@ test("isRequestAllowed prefers Origin, falls back to Referer when opaque", () =>
   );
 });
 
+test("isRequestAllowed allows the portal's own LAN origins (same host)", () => {
+  assert.equal(
+    isRequestAllowed(req({ origin: "http://192.168.1.50", host: "192.168.1.50" })),
+    true
+  );
+  assert.equal(
+    isRequestAllowed(
+      req({ origin: "http://elevenbeansdemac-mini.local:3000", host: "elevenbeansdemac-mini.local:3000" })
+    ),
+    true
+  );
+  assert.equal(
+    isRequestAllowed(req({ origin: "http://192.168.1.50:8080", host: "192.168.1.50" })),
+    false
+  );
+  assert.equal(
+    isRequestAllowed(req({ origin: "http://192.168.1.50", host: "192.168.1.60" })),
+    false
+  );
+  assert.equal(
+    isRequestAllowed(req({ origin: "https://evil.example", host: "192.168.1.50" })),
+    false
+  );
+  // WeChat over LAN: opaque Origin, same-host Referer.
+  assert.equal(
+    isRequestAllowed(
+      req({ origin: "null", host: "192.168.1.50", referer: "http://192.168.1.50/chat" })
+    ),
+    true
+  );
+  assert.equal(
+    isRequestAllowed(req({ host: "192.168.1.50", referer: "http://evil.example/" })),
+    false
+  );
+});
+
 test("corsHeaders echoes allowed Origin and omits ACAO when denied", () => {
   const allowed = corsHeaders(req({ origin: "https://blog.elevenbeans.me" }));
   assert.equal(allowed["Access-Control-Allow-Origin"], "https://blog.elevenbeans.me");

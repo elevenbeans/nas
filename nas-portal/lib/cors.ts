@@ -23,10 +23,32 @@ export function isAllowedUrl(value: string | null): boolean {
   return false;
 }
 
+/**
+ * True when the header points at the very host serving this request — the
+ * NAS portal's own pages, including LAN access over `http://192.168.x.x` or
+ * `http://<name>.local`, which the public allowlist deliberately excludes.
+ * A foreign page cannot satisfy this: its Origin carries its own host.
+ */
+function isSameOrigin(value: string | null, req: NextRequest): boolean {
+  if (!value) return false;
+  const host = req.headers.get("host");
+  if (!host) return false;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+    return url.host.toLowerCase() === host.toLowerCase();
+  } catch {
+    return false;
+  }
+}
+
 export function isRequestAllowed(req: NextRequest): boolean {
   const origin = req.headers.get("origin");
-  if (origin && origin !== "null") return isAllowedUrl(origin);
-  return isAllowedUrl(req.headers.get("referer"));
+  if (origin && origin !== "null") {
+    return isAllowedUrl(origin) || isSameOrigin(origin, req);
+  }
+  const referer = req.headers.get("referer");
+  return isAllowedUrl(referer) || isSameOrigin(referer, req);
 }
 
 export function corsHeaders(req: NextRequest): Record<string, string> {
