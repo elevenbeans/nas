@@ -15,7 +15,7 @@ export const PROJECT_DOCS: Record<string, ProjectDocEntry> = {
     url: "https://nas.elevenbeans.me",
   },
   blog: { files: ["blog/README.md"], url: "https://blog.elevenbeans.me" },
-  "game-of-life": { files: ["game-of-life/README.md"], url: "https://game.elevenbeans.me" },
+  "earth-online": { files: ["myprofile/earth-online/README.md"], url: "https://elevenbeans.me/earth-online/" },
 };
 
 export const PROJECT_DOC_KEYS = Object.keys(PROJECT_DOCS);
@@ -28,7 +28,7 @@ export const PROJECT_KEYWORDS: Record<string, RegExp> = {
   nas: /\bnas\b|nas[- ]?portal|portal|\bsmb\b|cloudflare|tunnel|存储|文件|照片|媒体|远程|内网|外网|服务状态/i,
   myprofile: /myprofile|profile|简历|个人主页|elevenbeans\.me/i,
   blog: /\bblog\b|博客/i,
-  "game-of-life": /game of life|game-of-life|生命游戏|康威|conway/i,
+  "earth-online": /earth online|earth-online|地球\s*online|地球 online|orbital blueprint|轨道蓝图|blueprint|34\s*(座)?城市|34 cities|map?libre|城市分数|city score/i,
 };
 
 const MAX_DOC_CHARS = 12_000;

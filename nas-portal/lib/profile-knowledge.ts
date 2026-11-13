@@ -116,12 +116,16 @@ const FACTS: ProfileFact[] = [
     en: "Education: Sichuan University — BSc in Computer Science (2008 – 2012).",
   },
   {
-    zh: "项目：NAS Portal（自建的文件/照片/媒体门户，内置本地 AI 助手，架构见 https://github.com/elevenbeans/nas）、博客、Budgetair.com、Cheaptickets.nl、生命游戏（Game of Life）。",
-    en: "Projects: NAS Portal (self-hosted portal for files/photos/media, with a local AI assistant; architecture in https://github.com/elevenbeans/nas), Blog, Budgetair.com, Cheaptickets.nl, Game of Life.",
+    zh: "项目：NAS Portal（自建的文件/照片/媒体门户，内置本地 AI 助手，架构见 https://github.com/elevenbeans/nas）、博客、Budgetair.com、Cheaptickets.nl、地球 Online（Earth Online）。",
+    en: "Projects: NAS Portal (self-hosted portal for files/photos/media, with a local AI assistant; architecture in https://github.com/elevenbeans/nas), Blog, Budgetair.com, Cheaptickets.nl, Earth Online.",
   },
   {
-    zh: "项目文档 key 与链接：myprofile → https://elevenbeans.me；nas、nas-portal → https://nas.elevenbeans.me；blog → https://blog.elevenbeans.me；game-of-life → https://game.elevenbeans.me。被问到这些项目时，必须先用 get_project_doc 读取文档，再依据文档回答。",
-    en: "Project doc keys and links: myprofile → https://elevenbeans.me; nas, nas-portal → https://nas.elevenbeans.me; blog → https://blog.elevenbeans.me; game-of-life → https://game.elevenbeans.me. When asked about these projects you MUST first call get_project_doc and answer from the returned doc.",
+    zh: "项目文档 key 与链接：myprofile → https://elevenbeans.me；earth-online → https://elevenbeans.me/earth-online/；nas、nas-portal → https://nas.elevenbeans.me；blog → https://blog.elevenbeans.me。被问到这些项目时，必须先用 get_project_doc 读取文档，再依据文档回答。",
+    en: "Project doc keys and links: myprofile → https://elevenbeans.me; earth-online → https://elevenbeans.me/earth-online/; nas, nas-portal → https://nas.elevenbeans.me; blog → https://blog.elevenbeans.me. When asked about these projects you MUST first call get_project_doc and answer from the returned doc.",
+  },
+  {
+    zh: "项目：地球 Online / Earth Online（主页项目）—— 可交互的 3D 地球，34 座城市、实时天气、共享城市分数。入口 https://elevenbeans.me/earth-online/ 。点击城市聚焦 +5，进入城市详情 +10，可重复；分数全局共享，不需要登录。城市详情是 MapLibre/OpenFreeMap/OSM 的 Orbital Blueprint 风格（深海军蓝、青色建筑线框、琥珀标签/分数、网格/扫描线/雷达），每城有专属相机、地标标签和程序化线框地标；上海是陆家嘴/外滩 + 东方明珠线框模型。无 API Key，不含经济/合约/等级/拆除系统。更多细节以项目文档为准。",
+    en: "Project: Earth Online — the homepage's interactive 3D Earth with 34 cities, live weather and a shared city score board. URL: https://elevenbeans.me/earth-online/. Focusing a city adds +5; entering the city detail adds +10; repeatable. Scores are global and require no login. City detail uses MapLibre/OpenFreeMap/OSM in an Orbital Blueprint style (deep navy, cyan building wireframes, amber labels/score, grid/scanlines/radar), with a per-city camera, landmark labels and a procedural wireframe landmark; Shanghai is Lujiazui/Bund with the Oriental Pearl. No API key; no economy/contracts/levels/demolition. See the project doc for details.",
   },
   {
     zh: "兴趣：自托管、旅行、咖啡、猫、音乐、威士忌、氛围编程（Vibe Coding）。",

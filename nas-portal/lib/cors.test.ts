@@ -89,7 +89,7 @@ test("isRequestAllowed allows the portal's own LAN origins (same host)", () => {
 test("corsHeaders echoes allowed Origin and omits ACAO when denied", () => {
   const allowed = corsHeaders(req({ origin: "https://blog.elevenbeans.me" }));
   assert.equal(allowed["Access-Control-Allow-Origin"], "https://blog.elevenbeans.me");
-  assert.equal(allowed["Access-Control-Allow-Methods"], "POST, OPTIONS");
+  assert.equal(allowed["Access-Control-Allow-Methods"], "GET, POST, OPTIONS");
   assert.equal(allowed["Vary"], "Origin");
 
   const nullOrigin = corsHeaders(req({ origin: "null", referer: "https://elevenbeans.me/" }));
