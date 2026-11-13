@@ -140,3 +140,10 @@
 - **Inline preview allowlist** — `download?inline=1` renders only allowlisted types (PDF, JSON, plain text, Markdown, CSV) inline; HTML, SVG, JS, and XML are forced to download, closing a same-origin XSS path through a crafted file dropped on the NAS. `isPreviewableInBrowser()` is now the single source of truth for both the file row and the API.
 - **LAN detection hardened** — `isExternalRequest()` parses the `Host` header instead of matching prefixes: `*.local` counts as the home network (Movies play over the Bonjour name), the private range is checked properly (172.16/12 only, so `172.15.x` is external), and lookalikes such as `10.example.com` are no longer mistaken for the LAN.
 - **Tests** — `npm test` covers 14 cases across CORS, host classification, and the inline allowlist.
+
+## v3.8 (2026-11-14)
+
+- **Earth Online score API** — `GET/POST /api/earth-score` and `POST /api/earth-score/session` for the shared 34-city score board; `+5` focus, `+10` city detail, session tokens, idempotent event IDs, per-token/city cooldowns and an IP rate limit
+- **Earth Online profile knowledge** — added the Earth Online project fact and `earth-online` project-doc key; the assistant can answer with the 34-city/Orbital Blueprint details from `myprofile/earth-online/README.md`
+- **Homepage docs** — replaced Game of Life with Earth Online in the myprofile profile facts and project-doc registry
+- **Persistent score data** — file-backed at `.data/earth-online-scores.json`, with CORS and simple-body score writes

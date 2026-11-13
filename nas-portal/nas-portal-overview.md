@@ -10,6 +10,11 @@ nas-portal/
 │   ├── api/
 │   │   ├── chat/
 │   │   │   └── route.ts              POST /api/chat (local AI assistant, streaming)
+│   │   ├── earth-score/
+│   │   │   ├── route.ts              GET/POST /api/earth-score
+│   │   │   └── session/route.ts      POST /api/earth-score/session
+│   │   ├── profile-chat/
+│   │   │   └── route.ts              POST /api/profile-chat (myprofile assistant, streaming)
 │   │   ├── files/
 │   │   │   ├── route.ts              GET /api/files?path=
 │   │   │   ├── download/
@@ -51,10 +56,14 @@ nas-portal/
 ├── lib/
 │   ├── api.ts                        SystemStatus type + fetch
 │   ├── api-utils.ts                  File path validation (resolveSafePath)
+│   ├── cors.ts                       Site-origin allowlist for public APIs
+│   ├── earth-score.ts                Shared Earth Online scores, sessions, rate limits
 │   ├── file-types.ts                 MIME detection + file category classification
 │   ├── i18n.ts                       Chinese/English translation dicts
 │   ├── nas-knowledge.ts              NAS facts + chat system-prompt builder
-│   └── network-utils.ts              Internal vs external network detection
+│   ├── network-utils.ts              Internal vs external network detection
+│   ├── profile-knowledge.ts          myprofile facts + profile-chat system prompt
+│   └── project-docs.ts               Project doc registry + get_project_doc tool
 ├── package.json
 ├── tsconfig.json
 ├── next.config.ts
@@ -88,6 +97,9 @@ nas-portal/
 | `/api/photos` | GET | Photo list sorted by EXIF DateTimeOriginal desc (jpg/png/heic/heif/webp), EXIF fallback to mtime |
 | `/api/photos/[name]?w=` | GET | Image serving + sharp server-side resize (JPEG quality 80) |
 | `/api/chat` | POST | Streaming chat proxy to local Ollama; builds system prompt from `nas-knowledge.ts`, NDJSON→plain-text stream, per-IP rate limit (10/min) |
+| `/api/profile-chat` | POST | Streaming assistant for `elevenbeans.me`; `profile-knowledge.ts` + project docs (`get_project_doc`), origin allowlist, per-IP rate limit |
+| `/api/earth-score` | GET / POST | Shared 34-city Earth Online scores; `focus +5`, `detail +10`; idempotent events, cooldown, IP rate limit |
+| `/api/earth-score/session` | POST | Short-lived session token for score writes |
 
 ---
 
@@ -135,6 +147,36 @@ components/markdown-content.tsx   ← renders reply as styled markdown
 - **Abuse protection**: 10 requests/min per `cf-connecting-ip` (only trusted header; other traffic shares one bucket)
 
 ---
+
+## Profile Chat & Earth Online APIs
+
+### Profile chat
+
+```
+Browser on elevenbeans.me
+   │  POST /api/profile-chat { messages, locale, profile? }
+   ▼
+app/api/profile-chat/route.ts
+   │  buildProfileSystemPrompt(locale, profile)  ← lib/profile-knowledge.ts
+   │  matchProjectDocs(...) + getProjectDocContext(...)  ← lib/project-docs.ts
+   ▼
+Ollama (qwen2.5:3b)  ← local, streaming
+   │  tool calls: get_project_doc
+   ▼
+profile-chat route.ts → plain-text stream
+```
+
+- Facts live in `lib/profile-knowledge.ts`; project docs are resolved at runtime from `PROJECT_DOCS_ROOT` (default `/Users/elevenbeans/code`).
+- Project keys: `myprofile`, `earth-online`, `nas` (the NAS doc also covers `nas-portal`), `blog`.
+- The `earth-online` doc is `myprofile/earth-online/README.md` on the site repo.
+- Origins are allowlisted for `*.elevenbeans.me`; the model is told to answer project questions only from the supplied docs.
+
+### Earth Online scores
+
+- 34 city IDs; focus `+5`, enter detail `+10`; scores are global and repeatable.
+- `POST /api/earth-score/session` issues a short-lived token; `POST /api/earth-score` accepts an event with an idempotency `eventId`.
+- Per-token/city/action cooldowns (0.8 s focus, 1.5 s detail) plus an IP limit; persisted at `.data/earth-online-scores.json`.
+- CORS uses a simple `text/plain` body for score writes to avoid a preflight, with an origin allowlist in `lib/cors.ts`.
 
 ## Deployment Architecture
 

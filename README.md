@@ -84,7 +84,15 @@ DIY home NAS on Mac Mini (macOS) + UGREEN dual-bay enclosure + WD Red 3TB.
 - **Photo serving:** custom API route with sharp — no Immich/PhotoPrism
 - **Movies access control:** `Movies/` is restricted on external network (Cloudflare Tunnel) — only name+size visible, no preview/download/stream; internal LAN retains full playback via Host-header detection (`lib/network-utils.ts`)
 - **Local AI chat:** `/chat` page answers NAS usage questions via a local Ollama `qwen2.5:3b` model — no cloud dependency, data never leaves the NAS; knowledge-grounded via `lib/nas-knowledge.ts`, streaming replies, per-IP rate limit on the public endpoint
+- **Profile chat & Earth Online:** `/api/profile-chat` powers the myprofile site assistant, grounded in `lib/profile-knowledge.ts` plus project docs and the `get_project_doc` tool; `/api/earth-score` stores the shared 34-city Earth Online score board (sessions, idempotent events, per-city cooldowns).
 
+
+## Profile Chat & Earth Online APIs
+
+- **`POST /api/profile-chat`** — streaming assistant for [elevenbeans.me](https://elevenbeans.me). It combines curated profile facts (`lib/profile-knowledge.ts`) with project docs (`lib/project-docs.ts`), supports the `get_project_doc` tool, and allows `*.elevenbeans.me` origins. The Earth Online project doc is `myprofile/earth-online/README.md`.
+- **`POST /api/earth-score/session`** — short-lived session token for the Earth Online score board.
+- **`GET/POST /api/earth-score`** — shared scores for 34 cities; focus `+5`, detail `+10`; idempotency key, per-token/city cooldowns, and an IP rate limit. Persisted at `.data/earth-online-scores.json`.
+- **CORS** — score writes use a simple `text/plain` body so the browser avoids a preflight; `lib/cors.ts` allowlists the site origins.
 
 ## NAS Portal
 
