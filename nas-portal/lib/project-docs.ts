@@ -28,7 +28,7 @@ export const PROJECT_KEYWORDS: Record<string, RegExp> = {
   nas: /\bnas\b|nas[- ]?portal|portal|\bsmb\b|cloudflare|tunnel|存储|文件|照片|媒体|远程|内网|外网|服务状态/i,
   myprofile: /myprofile|profile|简历|个人主页|elevenbeans\.me/i,
   blog: /\bblog\b|博客/i,
-  "earth-online": /earth online|earth-online|地球\s*online|地球 online|orbital blueprint|轨道蓝图|blueprint|3[45]\s*(座)?城市|3[45] cities|map?libre|城市分数|city score/i,
+  "earth-online": /earth online|earth-online|地球\s*online|地球 online|orbital blueprint|轨道蓝图|blueprint|3[456]\s*(座)?城市|3[456] cities|map?libre|城市分数|city score/i,
 };
 
 const MAX_DOC_CHARS = 12_000;
