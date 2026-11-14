@@ -47,6 +47,7 @@ export const CITY_IDS = [
   "madrid",
   "rome",
   "melbourne",
+  "lasvegas",
 ] as const;
 
 export type CityId = (typeof CITY_IDS)[number];
