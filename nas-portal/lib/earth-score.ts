@@ -58,6 +58,7 @@ export const CITY_IDS = [
   "jakarta",
   "nanjing",
   "marrakech",
+  "vancouver",
 ] as const;
 
 export type CityId = (typeof CITY_IDS)[number];
