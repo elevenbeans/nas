@@ -147,3 +147,8 @@
 - **Earth Online profile knowledge** — added the Earth Online project fact and `earth-online` project-doc key; the assistant can answer with the 34-city/Orbital Blueprint details from `myprofile/earth-online/README.md`
 - **Homepage docs** — replaced Game of Life with Earth Online in the myprofile profile facts and project-doc registry
 - **Persistent score data** — file-backed at `.data/earth-online-scores.json`, with CORS and simple-body score writes
+
+## v3.8.1 (2026-11-24)
+
+- **Dashboard carousel: 16 photos** — the homepage slider now shows 16 random photos per session instead of 10, still ordered newest-first. The selection moved into `lib/photo-pick.ts` (`CAROUSEL_SIZE` + `pickCarouselPhotos()`) with unit tests covering the count, distinctness, ordering, small libraries, and the empty case.
+- **Deploy restarts in place** — `scripts/deploy.sh` now restarts a loaded launchd job with `launchctl kickstart -k` (one process swap, ~1s) and only falls back to bootout + bootstrap when the job is not loaded, avoiding the `EIO` window that can leave the portal down.
