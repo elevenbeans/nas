@@ -22,6 +22,17 @@ fail() { printf '\n[deploy] FAILED: %s\n' "$*" >&2; }
 
 restart_portal() {
   local i
+
+  # A loaded job is restarted in place with kickstart: one process swap, ~1s,
+  # and no window where the service is booted out but cannot be bootstrapped
+  # again (that EIO path took the site down for minutes on 2026-11-16).
+  if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+    if launchctl kickstart -k "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+      return 0
+    fi
+    printf '[deploy] kickstart failed, falling back to bootout + bootstrap\n' >&2
+  fi
+
   launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
 
   # bootout is asynchronous: bootstrapping the same label immediately after it
