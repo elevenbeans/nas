@@ -2,12 +2,16 @@ import { NextRequest } from "next/server";
 import { buildProfileSystemPrompt, type ProfileContext } from "@/lib/profile-knowledge";
 import { isRateLimited } from "@/lib/rate-limit";
 import { corsHeaders, isRequestAllowed } from "@/lib/cors";
-import { PROJECT_DOC_TOOLS, executeProjectTool, matchProjectDocs, getProjectDocContext } from "@/lib/project-docs";
+import { PROJECT_DOC_TOOLS, executeProjectTool, matchProjectDocs } from "@/lib/project-docs";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const OLLAMA_MODEL =
   process.env.PROFILE_OLLAMA_MODEL || process.env.OLLAMA_MODEL || "qwen2.5:3b";
 const MAX_TOOL_ROUNDS = 3;
+const MAX_INJECT_CHARS = 6_000;
+const UNAVAILABLE_TEXT = "[服务暂时不可用]";
+
+type StreamMode = "text" | "ndjson";
 
 interface ClientMessage {
   role: "user" | "assistant";
@@ -28,8 +32,111 @@ interface OllamaLine {
   error?: string;
 }
 
+interface ToolCallEvent {
+  id: string;
+  name: string;
+  args: unknown;
+}
+
+interface ToolResultEvent {
+  id: string;
+  name: string;
+  ok: boolean;
+  summary: string;
+  ms: number;
+}
+
+interface DocBlock {
+  project: string;
+  content: string;
+  ms: number;
+}
+
+interface Sink {
+  text(value: string): void;
+  toolCall(call: ToolCallEvent): void;
+  toolResult(result: ToolResultEvent): void;
+  error(): void;
+}
+
 function parseToolCalls(json: OllamaLine): ToolCall[] {
   return json.message?.tool_calls ?? [];
+}
+
+function parseToolArguments(args: unknown): Record<string, unknown> {
+  if (typeof args === "string") {
+    try {
+      const parsed = JSON.parse(args);
+      return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+    } catch {
+      return {};
+    }
+  }
+  if (args && typeof args === "object") return args as Record<string, unknown>;
+  return {};
+}
+
+function toolResultOk(result: string): boolean {
+  try {
+    const parsed = JSON.parse(result) as unknown;
+    return !(parsed && typeof parsed === "object" && "error" in parsed);
+  } catch {
+    return true;
+  }
+}
+
+function summarizeToolResult(result: string): string {
+  try {
+    const parsed = JSON.parse(result) as {
+      content?: unknown;
+      sources?: unknown;
+      error?: unknown;
+    };
+    if (typeof parsed.error === "string") return parsed.error;
+    if (typeof parsed.content === "string") {
+      const sources = Array.isArray(parsed.sources) ? parsed.sources.length : 0;
+      const chars = parsed.content.length.toLocaleString("en-US");
+      return `${chars} chars${sources ? ` \u00b7 ${sources} file${sources > 1 ? "s" : ""}` : ""}`;
+    }
+    return "ok";
+  } catch {
+    return "ok";
+  }
+}
+
+/**
+ * The same handler serves two protocols:
+ *  - text/plain (default): the legacy raw stream, so cached older clients keep working.
+ *  - application/x-ndjson (negotiated via `Accept`): text deltas plus real
+ *    tool_call / tool_result events, which the site renders as cards.
+ */
+function createSink(
+  controller: ReadableStreamDefaultController<Uint8Array>,
+  encoder: TextEncoder,
+  mode: StreamMode,
+  unavailableMessage: string
+): Sink {
+  const write = (text: string) => controller.enqueue(encoder.encode(text));
+
+  if (mode === "text") {
+    return {
+      text: write,
+      toolCall: () => {},
+      toolResult: () => {},
+      error: () => write(`\n${UNAVAILABLE_TEXT}`),
+    };
+  }
+
+  const send = (event: unknown) => write(`${JSON.stringify(event)}\n`);
+  return {
+    text: (value: string) => {
+      if (value) send({ type: "text", value });
+    },
+    toolCall: (call: ToolCallEvent) =>
+      send({ type: "tool_call", id: call.id, name: call.name, args: call.args }),
+    toolResult: (result: ToolResultEvent) => send({ type: "tool_result", ...result }),
+    error: () => send({ type: "error", code: "unavailable", message: unavailableMessage }),
+  };
 }
 
 function sanitizeProfile(raw: unknown): ProfileContext | undefined {
@@ -55,8 +162,7 @@ function sanitizeProfile(raw: unknown): ProfileContext | undefined {
 }
 
 async function runProfileChat(
-  controller: ReadableStreamDefaultController,
-  encoder: TextEncoder,
+  sink: Sink,
   systemMessages: { role: string; content: string }[],
   history: { role: string; content: string }[],
   tools: unknown[] | undefined
@@ -78,12 +184,12 @@ async function runProfileChat(
         }),
       });
     } catch {
-      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
+      sink.error();
       return;
     }
 
     if (!upstream.ok || !upstream.body) {
-      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
+      sink.error();
       return;
     }
 
@@ -111,7 +217,7 @@ async function runProfileChat(
           const calls = parseToolCalls(json);
           if (calls.length > 0) toolCalls = toolCalls.concat(calls);
           const content = json.message?.content ?? "";
-          if (content) controller.enqueue(encoder.encode(content));
+          if (content) sink.text(content);
         }
       }
       buffer += decoder.decode();
@@ -122,13 +228,13 @@ async function runProfileChat(
           const calls = parseToolCalls(json);
           if (calls.length > 0) toolCalls = toolCalls.concat(calls);
           const content = json.message?.content ?? "";
-          if (content) controller.enqueue(encoder.encode(content));
+          if (content) sink.text(content);
         } catch {
           // ignore malformed final line
         }
       }
     } catch {
-      controller.enqueue(encoder.encode(`\n[服务暂时不可用]`));
+      sink.error();
       return;
     } finally {
       reader.releaseLock();
@@ -136,29 +242,40 @@ async function runProfileChat(
 
     if (toolCalls.length === 0) return;
 
+    const normalized = toolCalls.map((call, index) => ({
+      id: call.id || `call_${round}_${index}`,
+      type: "function" as const,
+      function: {
+        name: call.function?.name ?? "",
+        arguments: call.function?.arguments ?? {},
+      },
+    }));
+
     messages.push({
       role: "assistant",
       content: "",
-      tool_calls: toolCalls.map((c) => ({
-        id: c.id,
-        type: "function",
-        function: { name: c.function.name, arguments: c.function.arguments },
-      })),
+      tool_calls: normalized,
     });
 
-    for (const call of toolCalls) {
-      const args =
-        typeof call.function.arguments === "string"
-          ? (() => {
-              try {
-                return JSON.parse(call.function.arguments as string);
-              } catch {
-                return {};
-              }
-            })()
-          : call.function.arguments ?? {};
+    for (const call of normalized) {
+      const args = parseToolArguments(call.function.arguments);
+      sink.toolCall({ id: call.id, name: call.function.name, args });
+
+      const startedAt = Date.now();
       const result = executeProjectTool(call.function.name, args);
-      messages.push({ role: "tool", content: result });
+      sink.toolResult({
+        id: call.id,
+        name: call.function.name,
+        ok: toolResultOk(result),
+        summary: summarizeToolResult(result),
+        ms: Date.now() - startedAt,
+      });
+
+      messages.push({
+        role: "tool",
+        tool_name: call.function.name,
+        content: result,
+      });
     }
   }
 }
@@ -230,15 +347,31 @@ export async function POST(req: NextRequest) {
   ];
 
   const recentTexts = history.slice(-4).map((m) => m.content);
-  const matchedProjects = matchProjectDocs(...recentTexts);
-  const docContext = getProjectDocContext(matchedProjects);
+  const matchedProjects = matchProjectDocs(...recentTexts).slice(0, 2);
+  const docBlocks: DocBlock[] = [];
+  let injected = "";
+  for (const project of matchedProjects) {
+    const startedAt = Date.now();
+    const raw = executeProjectTool("get_project_doc", { project });
+    const ms = Date.now() - startedAt;
+    try {
+      const parsed = JSON.parse(raw) as { content?: unknown; url?: unknown };
+      if (typeof parsed.content !== "string" || !parsed.content) continue;
+      docBlocks.push({ project, content: parsed.content, ms });
+      const url = typeof parsed.url === "string" ? ` (${parsed.url})` : "";
+      injected += `### Project: ${project}${url}\n${parsed.content}\n\n`;
+    } catch {
+      continue;
+    }
+  }
+  const docContext = injected.slice(0, MAX_INJECT_CHARS).trim();
   if (docContext) {
     systemMessages.push({
       role: "system",
       content:
         (locale === "zh"
-          ? "相关项目文档已直接提供如下。请只依据它、用不超过 5 句话回答；不要复述或粘贴文档内容，不要调用任何工具。\n\n"
-          : "The relevant project documentation is provided directly below. Answer ONLY from it, in at most 5 sentences; do not repeat or paste the document, and do NOT call any tool.\n\n") +
+          ? "相关项目文档已直接提供如下。请只依据它、用不超过 5 句话回答；不要复述或粘贴文档内容。\n\n"
+          : "The relevant project documentation is provided directly below. Answer ONLY from it, in at most 5 sentences; do not repeat or paste the document.\n\n") +
         docContext,
     });
   }
@@ -256,18 +389,51 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  const wantsEvents = (req.headers.get("accept") ?? "").includes("application/x-ndjson");
+  const mode: StreamMode = wantsEvents ? "ndjson" : "text";
+  const unavailableMessage =
+    locale === "zh" ? "服务暂时不可用，请稍后再试。" : "The assistant is temporarily unavailable. Please try again later.";
   const encoder = new TextEncoder();
 
-  const stream = new ReadableStream({
+  const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      await runProfileChat(controller, encoder, systemMessages, history, tools);
-      controller.close();
+      const sink = createSink(controller, encoder, mode, unavailableMessage);
+      try {
+        // Deterministic grounding is a real tool execution: emit the same
+        // tool_call / tool_result pair the model-driven path emits, so the
+        // UI shows what actually happened instead of a silent prompt injection.
+        for (const block of docBlocks) {
+          const id = `doc_${block.project}`;
+          sink.toolCall({
+            id,
+            name: "get_project_doc",
+            args: { project: block.project },
+          });
+          sink.toolResult({
+            id,
+            name: "get_project_doc",
+            ok: true,
+            summary: `${block.content.length.toLocaleString("en-US")} chars`,
+            ms: block.ms,
+          });
+        }
+
+        await runProfileChat(sink, systemMessages, history, tools);
+      } catch {
+        sink.error();
+      } finally {
+        if (mode === "ndjson") {
+          controller.enqueue(encoder.encode(`${JSON.stringify({ type: "done" })}\n`));
+        }
+        controller.close();
+      }
     },
   });
 
   return new Response(stream, {
     headers: {
-      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Type":
+        mode === "ndjson" ? "application/x-ndjson; charset=utf-8" : "text/plain; charset=utf-8",
       "Cache-Control": "no-store",
       "X-Accel-Buffering": "no",
       ...corsHeaders(req),
