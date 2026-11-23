@@ -8,7 +8,7 @@ const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const OLLAMA_MODEL =
   process.env.PROFILE_OLLAMA_MODEL || process.env.OLLAMA_MODEL || "qwen2.5:3b";
 const MAX_TOOL_ROUNDS = 3;
-const MAX_INJECT_CHARS = 6_000;
+const MAX_INJECT_CHARS = 10_000;
 const UNAVAILABLE_TEXT = "[服务暂时不可用]";
 
 type StreamMode = "text" | "ndjson";
