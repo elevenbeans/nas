@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { pickCarouselPhotos } from "@/lib/photo-pick";
 
 export type PhotoInfo = { name: string; capturedAt: string; size: number };
 
@@ -19,11 +20,7 @@ export default function PhotoCarousel({ photos, loading }: { photos: PhotoInfo[]
   const scrollRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   if (photos.length && !cachedItems) {
-    cachedItems = photos
-      .slice()
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 10)
-      .sort((a, b) => b.capturedAt.localeCompare(a.capturedAt));
+    cachedItems = pickCarouselPhotos(photos);
   }
   const items = cachedItems ?? [];
 

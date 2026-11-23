@@ -78,7 +78,7 @@ nas-portal/
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | Dashboard | Greeting, system status (storage/network/services), photo carousel (10 random picks) |
+| `/` | Dashboard | Greeting, system status (storage/network/services), photo carousel (16 random picks) |
 | `/files` | File Browser | Directory tree navigation, image thumbnails, inline video playback, file type icons, download/stream endpoints, path traversal protection, empty-state message |
 | `/photos` | Photo Timeline | Grouped by EXIF capture date into monthly groups, responsive grid, lazy-loaded thumbnails |
 | `/guide` | User Guide | NAS usage guide, FAQ, storage decision table, fully localized |
